@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import {
   BedDouble,
@@ -46,13 +47,40 @@ const PROPERTY_TYPE_ICONS: Record<string, LucideIcon> = {
   private_room: BedDouble,
 };
 
+// Real photos of each city's most iconic, widely-photographed landmark
+// (all free-to-use under the Unsplash License -- see https://unsplash.com/license).
+// `images.unsplash.com` is already an allowed remote image host in next.config.mjs.
 const POPULAR_DESTINATIONS = [
-  { city: "Austin", tagline: "Live music & lake days", gradient: "from-havena-coral/70 to-havena-gold/60" },
-  { city: "Houston", tagline: "Bayou city energy", gradient: "from-havena-teal/70 to-havena-ink/60" },
-  { city: "San Antonio", tagline: "Riverwalk charm", gradient: "from-havena-gold/70 to-havena-coral/60" },
-  { city: "Galveston", tagline: "Gulf coast getaways", gradient: "from-havena-teal/60 to-havena-gold/50" },
-  { city: "Fredericksburg", tagline: "Hill country wine trail", gradient: "from-havena-coral/60 to-havena-teal/50" },
-  { city: "Dallas", tagline: "Big-city boutique stays", gradient: "from-havena-ink/70 to-havena-coral/50" },
+  {
+    city: "Austin",
+    tagline: "Live music & lake days",
+    imageUrl: "https://images.unsplash.com/photo-1557335200-a65f7f032602?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Houston",
+    tagline: "Bayou city energy",
+    imageUrl: "https://images.unsplash.com/photo-1746311528667-1038fe0c8c46?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "San Antonio",
+    tagline: "Riverwalk charm",
+    imageUrl: "https://images.unsplash.com/photo-1579053301200-93b5ef0c0b3a?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Galveston",
+    tagline: "Gulf coast getaways",
+    imageUrl: "https://images.unsplash.com/photo-1701972184355-d7de7849ee26?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Fredericksburg",
+    tagline: "Hill country wine trail",
+    imageUrl: "https://images.unsplash.com/photo-1575415789728-a8888a21ea66?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Dallas",
+    tagline: "Big-city boutique stays",
+    imageUrl: "https://images.unsplash.com/photo-1621904878414-d4ca4756bd7e?auto=format&fit=crop&w=800&q=80",
+  },
 ] as const;
 
 type RawFeaturedListingRow = Pick<
@@ -123,10 +151,10 @@ export default async function HomePage() {
 
         <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-6 text-center">
           <div className="space-y-4">
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
+            <h1 className="font-display text-4xl font-semibold tracking-tight text-black sm:text-5xl md:text-6xl">
               Find your next unforgettable stay
             </h1>
-            <p className="mx-auto max-w-xl text-balance text-base text-white/85 drop-shadow sm:text-lg">
+            <p className="mx-auto max-w-xl text-balance text-base text-black/80 sm:text-lg">
               Thoughtfully curated vacation rentals across Texas -- boutique hosts, honest pricing, booked in minutes.
             </p>
           </div>
@@ -198,10 +226,21 @@ export default async function HomePage() {
               <Link
                 key={destination.city}
                 href={`/search?location=${encodeURIComponent(destination.city)}`}
-                className={`group relative flex aspect-[3/4] flex-col justify-end overflow-hidden rounded-xl bg-gradient-to-br p-4 text-white shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg ${destination.gradient}`}
+                className="group relative flex aspect-[3/4] flex-col justify-end overflow-hidden rounded-xl text-white shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg"
               >
-                <span className="font-display text-lg font-semibold drop-shadow">{destination.city}</span>
-                <span className="text-xs text-white/85">{destination.tagline}</span>
+                <Image
+                  src={destination.imageUrl}
+                  alt={`${destination.city}, Texas`}
+                  fill
+                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                {/* Dark gradient scrim so the city name/tagline stay readable over any photo */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <span className="relative z-10 p-4 font-display text-lg font-semibold drop-shadow">
+                  {destination.city}
+                </span>
+                <span className="relative z-10 px-4 pb-4 text-xs text-white/85">{destination.tagline}</span>
               </Link>
             ))}
           </div>
@@ -231,3 +270,4 @@ export default async function HomePage() {
     </>
   );
 }
+
