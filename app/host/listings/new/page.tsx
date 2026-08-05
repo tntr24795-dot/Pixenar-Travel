@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ListingWizard } from "@/components/host/listing-wizard/wizard";
 
 export const metadata = {
-  title: "Create a listing — Havena Host",
+  title: "Create a listing — Pixenar Travel Host",
 };
 
 export default async function NewListingPage() {

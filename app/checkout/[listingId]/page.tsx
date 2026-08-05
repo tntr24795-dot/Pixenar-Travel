@@ -42,7 +42,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
   if (!checkIn || !checkOut) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-20 text-center">
-        <h1 className="font-display text-2xl font-semibold text-havena-ink">
+        <h1 className="font-display text-2xl font-semibold text-brand-ink">
           Missing dates
         </h1>
         <p className="mt-3 text-muted-foreground">
@@ -72,7 +72,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="font-display text-3xl font-semibold text-havena-ink">Confirm and pay</h1>
+      <h1 className="font-display text-3xl font-semibold text-brand-ink">Confirm and pay</h1>
       <p className="mt-1 text-muted-foreground">
         {listing.title}
         {listing.city ? ` · ${listing.city}${listing.state ? `, ${listing.state}` : ""}` : null}

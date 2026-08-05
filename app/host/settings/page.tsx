@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { HostBioForm } from "@/components/host/host-bio-form";
 
 export const metadata = {
-  title: "Host settings — Havena",
+  title: "Host settings — Pixenar Travel",
 };
 
 const IDENTITY_LABEL: Record<string, string> = {
