@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Havena "boutique hospitality" palette — warm ink, coral/terracotta primary,
+ * gold accent, soft cream/mist background. HSL triplets (no `hsl()` wrapper)
+ * so Tailwind can compose them as `hsl(var(--x))` / `hsl(var(--x) / <alpha>)`.
+ */
+@layer base {
+  :root {
+    --background: 40 38% 97%; /* soft cream */
+    --foreground: 222 30% 10%; /* deep ink */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 30% 10%;
+
+    --primary: 5 85% 63%; /* coral / terracotta */
+    --primary-foreground: 40 38% 98%;
+
+    --secondary: 32 40% 92%; /* warm mist */
+    --secondary-foreground: 222 30% 12%;
+
+    --muted: 32 25% 92%;
+    --muted-foreground: 222 12% 40%;
+
+    --accent: 40 68% 58%; /* warm gold */
+    --accent-foreground: 222 30% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 38% 98%;
+
+    --border: 32 25% 87%;
+    --input: 32 25% 87%;
+    --ring: 5 85% 63%;
+
+    --radius: 0.75rem;
+
+    --font-display: var(--font-fraunces);
+    --font-sans: var(--font-inter);
+  }
+
+  .dark {
+    --background: 222 32% 8%; /* deep ink */
+    --foreground: 40 30% 96%;
+
+    --card: 222 28% 11%;
+    --card-foreground: 40 30% 96%;
+
+    --popover: 222 28% 11%;
+    --popover-foreground: 40 30% 96%;
+
+    --primary: 5 80% 60%;
+    --primary-foreground: 222 32% 8%;
+
+    --secondary: 222 20% 16%;
+    --secondary-foreground: 40 30% 96%;
+
+    --muted: 222 20% 16%;
+    --muted-foreground: 32 15% 65%;
+
+    --accent: 40 65% 55%;
+    --accent-foreground: 222 32% 8%;
+
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 40 30% 96%;
+
+    --border: 222 20% 20%;
+    --input: 222 20% 20%;
+    --ring: 5 80% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
