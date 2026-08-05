@@ -252,7 +252,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
               className={`rounded-full px-3 py-1 text-sm font-semibold ${
                 secondsLeft < 60
                   ? "bg-destructive/10 text-destructive"
-                  : "bg-havena-gold/20 text-havena-ink"
+                  : "bg-brand-gold/20 text-brand-ink"
               }`}
             >
               Hold expires in {countdownLabel}
@@ -283,7 +283,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
               </Button>
             )}
             {step === "success" && (
-              <p className="text-sm font-medium text-havena-teal">
+              <p className="text-sm font-medium text-brand-teal">
                 Payment successful! Redirecting to your trip...
               </p>
             )}

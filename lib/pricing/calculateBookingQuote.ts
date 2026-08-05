@@ -1,5 +1,5 @@
 /**
- * Havena's single, canonical pricing engine.
+ * Pixenar Travel's single, canonical pricing engine.
  *
  * Every price a guest ever sees — the listing page pricing card, the search
  * result "from $X/night", the checkout page, and the amount actually charged

@@ -15,7 +15,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
   {
     title: "Company",
     links: [
-      { href: "/about", label: "About Havena" },
+      { href: "/about", label: "About Pixenar Travel" },
       { href: "/contact", label: "Contact us" },
     ],
   },
@@ -51,7 +51,7 @@ export function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Havena on Instagram"
+                aria-label="Pixenar Travel on Instagram"
                 className="text-muted-foreground hover:text-foreground"
               >
                 <Instagram className="h-5 w-5" />
@@ -60,7 +60,7 @@ export function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Havena on Twitter"
+                aria-label="Pixenar Travel on Twitter"
                 className="text-muted-foreground hover:text-foreground"
               >
                 <Twitter className="h-5 w-5" />
@@ -69,7 +69,7 @@ export function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Havena on Facebook"
+                aria-label="Pixenar Travel on Facebook"
                 className="text-muted-foreground hover:text-foreground"
               >
                 <Facebook className="h-5 w-5" />

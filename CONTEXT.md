@@ -1,6 +1,6 @@
-# Havena — shared build context (read this first)
+# Pixenar Travel — shared build context (read this first)
 
-Havena is a vacation-rental marketplace (like Airbnb) with a "3D Cinematic" public
+Pixenar Travel is a vacation-rental marketplace (like Airbnb) with a "3D Cinematic" public
 front-end (Three.js + GSAP scroll storytelling). Next.js 14 App Router + TypeScript
 + Tailwind + Supabase (Postgres/Auth/Storage/Realtime) + Stripe Connect + Mapbox.
 
@@ -38,7 +38,7 @@ Project root: `/home/claude/havena`. Work only inside this directory.
   booking hold, the 10-step listing wizard, reviews, messages). Use these — don't write new ones for the same data.
 - `constants/index.ts` — `PROPERTY_TYPES`, `ROOM_TYPES`, `CANCELLATION_POLICIES`,
   `AMENITY_ICON_MAP`, `LISTING_STATUSES`, `BOOKING_STATUSES`, `BOOKING_HOLD_MINUTES` (15),
-  `NAV_LINKS`, `APP_NAME` ("Havena").
+  `NAV_LINKS`, `APP_NAME` ("Pixenar Travel").
 - `package.json` — all dependencies you need are already declared (Radix primitives,
   react-day-picker, recharts, three, gsap, mapbox-gl, stripe, zod, react-hook-form,
   @hookform/resolvers, lucide-react, tailwindcss-animate, date-fns). Do not run `npm install`
@@ -80,7 +80,7 @@ Project root: `/home/claude/havena`. Work only inside this directory.
   dashboard, admin dashboard — is clean, fast, standard shadcn/ui-style UI.** No Three.js,
   no heavy scroll animation. Functional first: tables, cards, forms.
 - Color palette (Tailwind CSS variables already wired in `tailwind.config.ts` under
-  `havena.*` plus shadcn's standard `--primary`/`--secondary`/etc. HSL variables which you
+  `brand.*` plus shadcn's standard `--primary`/`--secondary`/etc. HSL variables which you
   should define in `app/globals.css` if not already present): warm ink/coral/gold/teal —
   think "boutique hospitality," not generic SaaS blue.
 - Use `lucide-react` for icons.

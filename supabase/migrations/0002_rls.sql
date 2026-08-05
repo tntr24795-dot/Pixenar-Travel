@@ -1,4 +1,4 @@
--- Havena — Row Level Security
+-- Pixenar Travel — Row Level Security
 -- Every table holding user data has RLS enabled. Tables with no INSERT/UPDATE
 -- policy for anon/authenticated are intentionally write-only via the server's
 -- service-role client (Supabase service_role bypasses RLS) — this guarantees
