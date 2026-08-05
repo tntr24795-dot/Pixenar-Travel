@@ -47,39 +47,39 @@ const PROPERTY_TYPE_ICONS: Record<string, LucideIcon> = {
   private_room: BedDouble,
 };
 
-// Real photos of each city's most iconic, widely-photographed landmark
+// Real photos of each destination's most iconic, widely-photographed landmark
 // (all free-to-use under the Unsplash License -- see https://unsplash.com/license).
 // `images.unsplash.com` is already an allowed remote image host in next.config.mjs.
 const POPULAR_DESTINATIONS = [
   {
+    city: "New York",
+    tagline: "Times Square lights & Broadway",
+    imageUrl: "https://images.unsplash.com/photo-1538970272646-f61fabb3a8a2?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Los Angeles",
+    tagline: "Hollywood & Pacific sunsets",
+    imageUrl: "https://images.unsplash.com/photo-1520867103747-49ecade4be79?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Chicago",
+    tagline: "The Bean & lakefront skyline",
+    imageUrl: "https://images.unsplash.com/photo-1597933534024-debb6104af15?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Las Vegas",
+    tagline: "The Strip after dark",
+    imageUrl: "https://images.unsplash.com/photo-1742627188934-0761f6d7a8f0?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    city: "Miami",
+    tagline: "Art Deco & South Beach",
+    imageUrl: "https://images.unsplash.com/photo-1752014613771-7afd0d131b9c?auto=format&fit=crop&w=800&q=80",
+  },
+  {
     city: "Austin",
     tagline: "Live music & lake days",
     imageUrl: "https://images.unsplash.com/photo-1557335200-a65f7f032602?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    city: "Houston",
-    tagline: "Bayou city energy",
-    imageUrl: "https://images.unsplash.com/photo-1746311528667-1038fe0c8c46?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    city: "San Antonio",
-    tagline: "Riverwalk charm",
-    imageUrl: "https://images.unsplash.com/photo-1579053301200-93b5ef0c0b3a?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    city: "Galveston",
-    tagline: "Gulf coast getaways",
-    imageUrl: "https://images.unsplash.com/photo-1701972184355-d7de7849ee26?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    city: "Fredericksburg",
-    tagline: "Hill country wine trail",
-    imageUrl: "https://images.unsplash.com/photo-1575415789728-a8888a21ea66?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    city: "Dallas",
-    tagline: "Big-city boutique stays",
-    imageUrl: "https://images.unsplash.com/photo-1621904878414-d4ca4756bd7e?auto=format&fit=crop&w=800&q=80",
   },
 ] as const;
 
@@ -270,4 +270,3 @@ export default async function HomePage() {
     </>
   );
 }
-
