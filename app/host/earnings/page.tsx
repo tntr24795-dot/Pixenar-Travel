@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EarningsChart, type EarningsPoint } from "@/components/host/earnings-chart";
 
 export const metadata = {
-  title: "Earnings — Pixenar Travel Host",
+  title: "Earnings — Havena Host",
 };
 
 export default async function HostEarningsPage() {

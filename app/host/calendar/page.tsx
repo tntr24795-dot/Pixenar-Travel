@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { HostCalendarClient } from "@/components/host/host-calendar-client";
 
 export const metadata = {
-  title: "Calendar — Pixenar Travel Host",
+  title: "Calendar — Havena Host",
 };
 
 export default async function HostCalendarPage() {

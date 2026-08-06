@@ -13,8 +13,15 @@ import { expireStaleHolds } from "@/services/booking.service";
  *
  * Authorization is a shared secret (CRON_SECRET) rather than a user
  * session, since this is meant to be called by a scheduler, not a browser.
- * Accepts the secret either as an `x-cron-secret` header or a `?secret=`
- * query param so it works with schedulers that can't set custom headers.
+ * Accepts the secret three ways so it works with any scheduler:
+ *   - `Authorization: Bearer <CRON_SECRET>` — what Vercel Cron itself sends
+ *     automatically on every invocation when a `CRON_SECRET` env var is set
+ *     on the project (see vercel.json at the repo root), so the plain
+ *     `"path": "/api/cron/expire-holds"` entry there needs no secret in the
+ *     URL (which would otherwise end up committed in plaintext).
+ *   - `x-cron-secret` header, or `?secret=` query param — for any other
+ *     scheduler (cron-job.org, GitHub Actions, etc.) that can't rely on
+ *     Vercel's automatic header.
  */
 export const runtime = "nodejs";
 
@@ -22,9 +29,13 @@ function isAuthorized(request: NextRequest): boolean {
   const expected = process.env.CRON_SECRET;
   if (!expected) return false; // fail closed if the secret isn't configured
 
+  const authHeader = request.headers.get("authorization");
+  const bearerSecret = authHeader?.toLowerCase().startsWith("bearer ")
+    ? authHeader.slice(7)
+    : null;
   const headerSecret = request.headers.get("x-cron-secret");
   const querySecret = request.nextUrl.searchParams.get("secret");
-  return headerSecret === expected || querySecret === expected;
+  return bearerSecret === expected || headerSecret === expected || querySecret === expected;
 }
 
 async function handle(request: NextRequest) {

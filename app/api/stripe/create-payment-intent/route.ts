@@ -7,7 +7,7 @@ import { BookingServiceError, createBookingCheckout } from "@/services/booking.s
  * POST /api/stripe/create-payment-intent
  *
  * This is intentionally the SAME operation as
- * `POST /api/bookings/[id]/checkout` — in Pixenar Travel's domain model, "create a
+ * `POST /api/bookings/[id]/checkout` — in Havena's domain model, "create a
  * PaymentIntent" only ever means "create the PaymentIntent for a specific
  * booking hold", with the exact same authorization/status/expiry/host-
  * readiness checks either way. Rather than maintain two implementations

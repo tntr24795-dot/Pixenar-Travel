@@ -19,9 +19,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Pixenar Travel — Vacation Rental Marketplace",
+  title: "Havena — Vacation Rental Marketplace",
   description:
-    "Pixenar Travel is a boutique vacation-rental marketplace — discover thoughtfully curated stays and host your own place with confidence.",
+    "Havena is a boutique vacation-rental marketplace — discover thoughtfully curated stays and host your own place with confidence.",
 };
 
 export default function RootLayout({

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
-  title: "Reservations — Pixenar Travel Host",
+  title: "Reservations — Havena Host",
 };
 
 const STATUS_LABEL: Record<string, string> = {

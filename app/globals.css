@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
- * Pixenar Travel "boutique hospitality" palette — warm ink, coral/terracotta primary,
+ * Havena "boutique hospitality" palette — warm ink, coral/terracotta primary,
  * gold accent, soft cream/mist background. HSL triplets (no `hsl()` wrapper)
  * so Tailwind can compose them as `hsl(var(--x))` / `hsl(var(--x) / <alpha>)`.
  */

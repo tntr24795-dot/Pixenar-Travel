@@ -10,7 +10,7 @@ import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { PauseListingButton } from "@/components/host/pause-listing-button";
 
 export const metadata = {
-  title: "Your listings — Pixenar Travel Host",
+  title: "Your listings — Havena Host",
 };
 
 const STATUS_BADGE_VARIANT: Record<string, BadgeProps["variant"]> = {
@@ -66,7 +66,7 @@ export default async function HostListingsPage() {
         <div>
           <h1 className="font-display text-3xl font-semibold">Your listings</h1>
           <p className="mt-1 text-muted-foreground">
-            Manage every property you've listed on Pixenar Travel.
+            Manage every property you've listed on Havena.
           </p>
         </div>
         <Button asChild>

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Payouts — Pixenar Travel Host",
+  title: "Payouts — Havena Host",
 };
 
 export default async function HostPayoutsPage() {

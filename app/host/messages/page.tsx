@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MessageComposer } from "@/components/host/message-composer";
 
 export const metadata = {
-  title: "Messages — Pixenar Travel Host",
+  title: "Messages — Havena Host",
 };
 
 export default async function HostMessagesPage({

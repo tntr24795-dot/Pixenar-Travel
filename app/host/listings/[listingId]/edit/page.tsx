@@ -12,7 +12,7 @@ import type {
 } from "@/components/host/listing-wizard/types";
 
 export const metadata = {
-  title: "Edit listing — Pixenar Travel Host",
+  title: "Edit listing — Havena Host",
 };
 
 export default async function EditListingPage({

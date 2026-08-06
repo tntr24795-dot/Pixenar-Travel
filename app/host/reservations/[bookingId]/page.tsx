@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Reservation details — Pixenar Travel Host",
+  title: "Reservation details — Havena Host",
 };
 
 const STATUS_LABEL: Record<string, string> = {

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Host dashboard — Pixenar Travel",
+  title: "Host dashboard — Havena",
 };
 
 export default async function HostDashboardPage() {
