@@ -50,9 +50,12 @@ export default function AboutPage() {
         </ul>
         <h2>Where we operate</h2>
         <p>
-          {APP_NAME} is launching first in Texas, with a growing collection
-          of houses, cabins, condos, and villas. We plan to expand
-          thoughtfully, market by market, rather than all at once.
+          {APP_NAME} connects travelers with boutique stays across the
+          United States, with new destinations added all the time — and
+          we're building toward a truly global collection of houses,
+          cabins, condos, and villas. Wherever we launch next, every host
+          is held to the same standard for accuracy, pricing, and
+          hospitality.
         </p>
         <p>
           Have questions or want to partner with us? Reach out on our{" "}
