@@ -21,7 +21,7 @@ export class ParticleField {
     const speeds = new Float32Array(count);
     const colors = new Float32Array(count * 3);
 
-    // Pixenar Travel palette: warm gold, teal, soft mist -- matches `havena.*` tokens.
+    // Havena palette: warm gold, teal, soft mist -- matches `havena.*` tokens.
     const palette = [
       new THREE.Color(0xe8b85a),
       new THREE.Color(0x1c7293),

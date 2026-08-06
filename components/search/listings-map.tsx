@@ -25,7 +25,7 @@ export interface ListingsMapProps {
   className?: string;
 }
 
-const FALLBACK_CENTER: [number, number] = [-97.7431, 30.2672]; // Austin, TX -- Pixenar Travel's Texas launch market
+const FALLBACK_CENTER: [number, number] = [-97.7431, 30.2672]; // Austin, TX -- Havena's Texas launch market
 
 /**
  * Client-only Mapbox GL map showing a pin per result (search page) or a

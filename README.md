@@ -1,4 +1,4 @@
-# Pixenar Travel — Vacation Rental Marketplace (3D Cinematic MVP)
+# Havena — Vacation Rental Marketplace (3D Cinematic MVP)
 
 A full-stack Airbnb-style marketplace: Next.js 14 (App Router, TypeScript, Tailwind,
 shadcn/ui), Supabase (Postgres + Auth + Storage + Realtime + RLS), Stripe Connect
@@ -9,7 +9,7 @@ homepage — built to the product/technical guideline you provided.
 
 **Already live** — a dedicated Supabase project was created and fully migrated for you:
 
-- Project: **Pixenar Travel** (`rizdfexhrpqijufviyyx`), org `PixenarAI36`'s Supabase account,
+- Project: **Havena** (`rizdfexhrpqijufviyyx`), org `PixenarAI36`'s Supabase account,
   region `us-west-1`. Dashboard: https://supabase.com/dashboard/project/rizdfexhrpqijufviyyx
 - Every table, enum-style check constraint, index, the double-booking-prevention
   exclusion constraint, and every Row Level Security policy from the guideline are
@@ -19,12 +19,12 @@ homepage — built to the product/technical guideline you provided.
   `{user_id}/...` folders.
 - This project is **intentionally separate** from your other Supabase project
   (`PixenarAI36 Project`), which already runs a live, unrelated AI-video app with its own
-  `profiles`/billing/credits tables and user pool — Pixenar Travel needed its own `auth.users`
+  `profiles`/billing/credits tables and user pool — Havena needed its own `auth.users`
   so signups here never collide with that product.
 
 **You need to provide** (copy `.env.local.example` → `.env.local` and fill in):
 
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — copy from the Pixenar Travel project's Settings → API page.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — copy from the Havena project's Settings → API page.
 - `SUPABASE_SERVICE_ROLE_KEY` — same page. **Never** expose this to the browser or commit it.
 - Stripe: create a free account, enable **Connect** (Settings → Connect → get started,
   Express accounts), grab your **test-mode** secret/publishable keys, and create a
@@ -109,7 +109,7 @@ supabase/migrations/  schema + RLS SQL, already applied
 - **Email sending** (verify/welcome/booking confirmation/etc. from section 2) isn't wired
   in yet — `resend` is installed and `RESEND_API_KEY`/`EMAIL_FROM` are in the env template,
   but no call sites exist yet. Straightforward to add in the webhook/booking-service layer.
-- **Payment methods page** is informational only (Pixenar Travel never stores card numbers —
+- **Payment methods page** is informational only (Havena never stores card numbers —
   Stripe Elements handles that at checkout); no saved-card management UI yet.
 - Dependency note: `@supabase/ssr` was bumped from the originally-planned `^0.5.1` to
   `^0.12.4` to match the installed `@supabase/supabase-js@2.112.0` — an older `ssr` version

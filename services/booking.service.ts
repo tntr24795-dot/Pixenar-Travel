@@ -1,5 +1,5 @@
 /**
- * Pixenar Travel booking domain service — plain server-side TypeScript, no
+ * Havena booking domain service — plain server-side TypeScript, no
  * "use client". This is the ONLY place bookings are created, confirmed,
  * cancelled or expired. Route handlers under `app/api/**` are thin wrappers
  * around these functions: they authenticate the caller, then delegate here.
@@ -519,23 +519,40 @@ export async function cancelBooking(
   //   - flexible: full refund if cancelled >= 24h before check-in, else none.
   //   - moderate: full refund if cancelled >= 5 days before check-in, else none.
   //   - strict:   50% refund if cancelled >= 14 days before check-in, else none.
+  //
+  // EXCEPTION (matches the publicly-posted /cancellation-policy page, which
+  // promises: "If a Host cancels a confirmed booking, the Guest receives a
+  // full refund regardless of the Listing's stated policy.") — a booking
+  // that was already `confirmed` and is being cancelled by its host (not the
+  // guest, not an admin acting on the guest's behalf) always gets a 100%
+  // guest refund, no matter which policy the listing has. Without this
+  // check, a host cancelling close to check-in under a strict/moderate
+  // policy would silently shortchange the guest and break the site's own
+  // published promise.
   // -------------------------------------------------------------------
-  const hoursUntilCheckIn =
-    (new Date(`${booking.check_in}T00:00:00Z`).getTime() - Date.now()) / (1000 * 60 * 60);
+  const isHostInitiatedCancellationOfConfirmedBooking =
+    booking.status === "confirmed" && params.cancelledBy === booking.host_id;
 
   let refundPercent: number;
-  switch (listing.cancellation_policy) {
-    case "flexible":
-      refundPercent = hoursUntilCheckIn >= 24 ? 100 : 0;
-      break;
-    case "moderate":
-      refundPercent = hoursUntilCheckIn >= 5 * 24 ? 100 : 0;
-      break;
-    case "strict":
-      refundPercent = hoursUntilCheckIn >= 14 * 24 ? 50 : 0;
-      break;
-    default:
-      refundPercent = 0;
+  if (isHostInitiatedCancellationOfConfirmedBooking) {
+    refundPercent = 100;
+  } else {
+    const hoursUntilCheckIn =
+      (new Date(`${booking.check_in}T00:00:00Z`).getTime() - Date.now()) / (1000 * 60 * 60);
+
+    switch (listing.cancellation_policy) {
+      case "flexible":
+        refundPercent = hoursUntilCheckIn >= 24 ? 100 : 0;
+        break;
+      case "moderate":
+        refundPercent = hoursUntilCheckIn >= 5 * 24 ? 100 : 0;
+        break;
+      case "strict":
+        refundPercent = hoursUntilCheckIn >= 14 * 24 ? 50 : 0;
+        break;
+      default:
+        refundPercent = 0;
+    }
   }
 
   const guestRefundCents = Math.round(booking.total_cents * (refundPercent / 100));

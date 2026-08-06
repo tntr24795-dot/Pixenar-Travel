@@ -1,4 +1,4 @@
--- Pixenar Travel — core schema
+-- Havena — core schema
 -- All monetary values are stored as integer cents. Never use floating point for money.
 
 create extension if not exists pgcrypto;

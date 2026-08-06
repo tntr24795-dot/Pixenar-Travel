@@ -9,7 +9,7 @@ export function StaticHeroFallback() {
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 -z-10 h-full w-full bg-gradient-to-br from-brand-ink via-[#132033] to-brand-teal/40"
+      className="fixed inset-0 -z-10 h-full w-full bg-gradient-to-br from-havena-ink via-[#132033] to-havena-teal/40"
     />
   );
 }
