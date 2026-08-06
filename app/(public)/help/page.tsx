@@ -55,7 +55,7 @@ const FAQ_SECTIONS: FaqSection[] = [
       {
         question: "How do I get paid?",
         answer:
-          "You'll connect a payout account during onboarding. Payouts are released automatically after a Guest's stay begins, minus the Havena service fee.",
+          "You'll connect a payout account during onboarding. Payouts are released automatically after a Guest's stay begins, minus the Pixenar Travel service fee.",
       },
       {
         question: "Can I set my own cancellation policy?",
@@ -70,7 +70,7 @@ const FAQ_SECTIONS: FaqSection[] = [
       {
         question: "What payment methods are accepted?",
         answer:
-          "Havena accepts major credit and debit cards through our PCI-compliant payment processor. We never store your full card number.",
+          "Pixenar Travel accepts major credit and debit cards through our PCI-compliant payment processor. We never store your full card number.",
       },
       {
         question: "Is my payment held until I check in?",

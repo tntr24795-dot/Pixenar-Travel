@@ -71,10 +71,10 @@ export default async function HostDashboardPage() {
       </div>
 
       {!hostProfile.stripe_onboarding_complete && (
-        <Card className="border-brand-gold/50 bg-brand-gold/10">
+        <Card className="border-havena-gold/50 bg-havena-gold/10">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
             <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-brand-gold" />
+              <AlertCircle className="h-5 w-5 text-havena-gold" />
               <p className="text-sm font-medium">
                 Finish setting up payouts to start accepting bookings.
               </p>

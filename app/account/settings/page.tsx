@@ -44,7 +44,7 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Email preferences</CardTitle>
-          <CardDescription>Choose what Havena emails you about.</CardDescription>
+          <CardDescription>Choose what Pixenar Travel emails you about.</CardDescription>
         </CardHeader>
         <CardContent>
           <EmailPreferencesForm />

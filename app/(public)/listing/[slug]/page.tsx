@@ -130,7 +130,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
             <section className="flex items-center justify-between gap-4 border-b border-border pb-6">
               <div>
                 <p className="font-medium">
-                  {roomTypeLabel} hosted by {hostProfile?.first_name ?? "a Havena host"}
+                  {roomTypeLabel} hosted by {hostProfile?.first_name ?? "a Pixenar Travel host"}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {listing.maximum_guests} guests · {listing.bedrooms} bedrooms · {listing.beds} beds ·{" "}
@@ -208,7 +208,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
                 <AvatarFallback>{(hostProfile?.first_name ?? "H").slice(0, 1)}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium">Hosted by {hostProfile?.first_name ?? "a Havena host"}</p>
+                <p className="font-medium">Hosted by {hostProfile?.first_name ?? "a Pixenar Travel host"}</p>
                 <p className="text-sm text-muted-foreground">
                   {hostProfile?.identity_status === "verified" && (
                     <span className="mr-2 inline-flex items-center gap-1">
