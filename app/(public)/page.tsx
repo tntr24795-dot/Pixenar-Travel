@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,8 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { WebGLErrorBoundary } from "@/components/three/webgl-error-boundary";
-import { StaticHeroFallback } from "@/components/three/static-hero-fallback";
+import { PhotoHero } from "@/components/hero/photo-hero";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { PROPERTY_TYPES } from "@/constants";
@@ -26,14 +24,6 @@ import {
   type FeaturedProperty,
 } from "./_components/featured-properties-reveal";
 import { ScrollFadeIn } from "./_components/scroll-fade-in";
-
-// The 3D scene is heavy (Three.js + postprocessing) and entirely
-// client/browser-only -- dynamic-import with `ssr: false` so it never blocks
-// server rendering and never ships to users who stay on the reduced-motion
-// / no-WebGL fallback path.
-const HeroScene = dynamic(() => import("@/components/three/hero-scene"), {
-  ssr: false,
-});
 
 const PROPERTY_TYPE_ICONS: Record<string, LucideIcon> = {
   house: HomeIcon,
@@ -142,12 +132,10 @@ export default async function HomePage() {
   return (
     <>
       {/* ---------------------------------------------------------------- */}
-      {/* 1. Hero -- 3D cinematic background + real DOM headline/search     */}
+      {/* 1. Hero -- real-photo runway-to-sky background + DOM headline/search */}
       {/* ---------------------------------------------------------------- */}
       <section id="hero" className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-        <WebGLErrorBoundary fallback={<StaticHeroFallback />}>
-          <HeroScene />
-        </WebGLErrorBoundary>
+        <PhotoHero />
 
         {/* Gradient scrim behind the headline/search bar so text stays
             readable regardless of which part of the runway-to-sky gradient

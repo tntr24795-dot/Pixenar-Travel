@@ -19,9 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SortSelect } from "./sort-select";
-// The full 3D-cinematic hero intro (Three.js + GSAP) is owned by a different
-// agent -- see CONTEXT.md's design-language section. Assume it exists.
-import HeroScene from "@/components/three/hero-scene";
+import { PhotoBanner } from "@/components/hero/photo-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -104,9 +102,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div>
-      {/* 3D cinematic hero intro -- built by the Three.js/GSAP agent in parallel. */}
       <div className="relative h-[30vh] min-h-[240px] w-full overflow-hidden bg-brand-ink">
-        <HeroScene />
+        <PhotoBanner />
       </div>
 
       <div className="border-b border-border bg-background/95 py-4">
