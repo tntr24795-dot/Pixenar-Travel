@@ -70,15 +70,17 @@ Project root: `/home/claude/pixenar-travel`. Work only inside this directory.
 
 ## Design language
 
-- **Public marketing pages only** (home `/`, `/search` hero intro, `/listing/[slug]` hero) get
-  the full 3D-cinematic treatment (Three.js scene + GSAP ScrollTrigger + bloom/particles per
-  the uploaded "3D Cinematic Website Development Guide"). This is being built by another
-  agent in parallel — don't build a competing Three.js scene; if your page needs the hero,
-  just leave a `<HeroScene />` component import from `@/components/three/hero-scene` and a
-  brief comment, assume it exists.
+- **Public marketing pages** (home `/` hero, `/search` hero banner, `/listing/[slug]` hero
+  banner) use real, licensed photography (see `components/hero/photo-hero.tsx` and
+  `components/hero/photo-banner.tsx`) rather than a 3D/WebGL scene -- an earlier Three.js
+  "cinematic" hero was replaced: it looked like a cartoon rather than a real airplane, and
+  every browser's `<canvas>` handling is its own source of cross-platform bugs (see the
+  iOS Safari Dark Mode writeup that used to live in `components/three/world.ts`, before that
+  whole directory was deleted). Photos must be free for commercial use with no attribution
+  required (Unsplash License is what's used today) -- never use a watermarked/paid stock photo.
 - **Everything else — search results list, listing detail body, checkout, account, host
-  dashboard, admin dashboard — is clean, fast, standard shadcn/ui-style UI.** No Three.js,
-  no heavy scroll animation. Functional first: tables, cards, forms.
+  dashboard, admin dashboard — is clean, fast, standard shadcn/ui-style UI.** No heavy
+  scroll animation. Functional first: tables, cards, forms.
 - Color palette (Tailwind CSS variables already wired in `tailwind.config.ts` under
   `brand.*` plus shadcn's standard `--primary`/`--secondary`/etc. HSL variables which you
   should define in `app/globals.css` if not already present): warm ink/coral/gold/teal —

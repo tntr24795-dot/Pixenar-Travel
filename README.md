@@ -1,9 +1,10 @@
-# Pixenar Travel — Vacation Rental Marketplace (3D Cinematic MVP)
+# Pixenar Travel — Vacation Rental Marketplace
 
 A full-stack Airbnb-style marketplace: Next.js 14 (App Router, TypeScript, Tailwind,
 shadcn/ui), Supabase (Postgres + Auth + Storage + Realtime + RLS), Stripe Connect
-(marketplace payments), Mapbox (search/geocoding), and a Three.js + GSAP "3D Cinematic"
-homepage — built to the product/technical guideline you provided.
+(marketplace payments), Mapbox (search/geocoding), and a real-photography, scroll-driven
+homepage hero (`components/hero/photo-hero.tsx`) — built to the product/technical
+guideline you provided.
 
 ## What's already real vs. what you need to plug in
 
