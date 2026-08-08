@@ -1,9 +1,16 @@
 /**
- * The user's own living room photo -- placed in /public and served locally
- * (not a remote URL), so no external hosting/licensing to track at all.
- * File: public/hero-living-room.jpg
+ * A real, licensed interior photograph -- a neutral, elegant living room --
+ * used as a fixed (non-scrolling) hero background, more fitting for a
+ * vacation-rental site than the earlier airplane concept. Free to use
+ * commercially with no attribution required under the Unsplash License:
+ * https://unsplash.com/photos/elegant-living-room-with-neutral-colors-and-art-z6Yn9hhlrJw
+ * by Rebecca Chandler.
+ *
+ * Swap this URL for a different photo any time -- just confirm whatever
+ * replaces it is royalty-free for commercial use.
  */
-const HERO_PHOTO_URL = "/hero-living-room.jpg";
+const HERO_PHOTO_URL =
+  "https://images.unsplash.com/photo-1750639258774-9a714379a093?fm=jpg&q=80&w=2400&auto=format&fit=crop";
 
 /**
  * Simple, static hero background: `fixed inset-0` pins it to the viewport,
