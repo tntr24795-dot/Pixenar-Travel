@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Hero3D } from "@/components/hero/hero-3d";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { PROPERTY_TYPES } from "@/constants";
@@ -24,12 +24,6 @@ import {
   type FeaturedProperty,
 } from "./_components/featured-properties-reveal";
 import { ScrollFadeIn } from "./_components/scroll-fade-in";
-
-// Client/browser-only (uses GSAP ScrollTrigger, which needs the DOM) --
-// dynamic-import with `ssr: false` so it never blocks server rendering.
-const PhotoHero = dynamic(() => import("@/components/three/photo-hero"), {
-  ssr: false,
-});
 
 const PROPERTY_TYPE_ICONS: Record<string, LucideIcon> = {
   house: HomeIcon,
@@ -138,18 +132,26 @@ export default async function HomePage() {
   return (
     <>
       {/* ---------------------------------------------------------------- */}
-      {/* 1. Hero -- real airplane-on-runway photo + scroll "takeoff" anim  */}
+      {/* 1. Hero -- real-photo runway-to-sky background + DOM headline/search */}
       {/* ---------------------------------------------------------------- */}
       <section id="hero" className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-        <PhotoHero />
+        <Hero3D />
+
+        {/* Gradient scrim behind the headline/search bar so text stays
+            readable regardless of which part of the runway-to-sky gradient
+            happens to sit behind it at any given scroll position -- white
+            text + this scrim reads reliably against both the warm dawn
+            tones and the blue sky tones, unlike the previous `text-black`
+            headline (which depended on the old scene always being dark). */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/25" />
 
         <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-6 text-center">
           <div className="space-y-4">
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
+            <h1 className="font-display text-4xl font-semibold tracking-tight text-white drop-shadow-md sm:text-5xl md:text-6xl">
               Find your next unforgettable stay
             </h1>
             <p className="mx-auto max-w-xl text-balance text-base text-white/90 drop-shadow sm:text-lg">
-              Thoughtfully curated vacation rentals for wherever you're headed next -- boutique hosts, honest pricing, booked in minutes.
+              Thoughtfully curated vacation rentals across Texas -- boutique hosts, honest pricing, booked in minutes.
             </p>
           </div>
 
@@ -171,7 +173,7 @@ export default async function HomePage() {
                   href={`/search?propertyType=${type.value}`}
                   className="group flex shrink-0 flex-col items-center gap-2 text-center"
                 >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-havena-ink transition-colors group-hover:bg-havena-gold/30">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-brand-ink transition-colors group-hover:bg-brand-gold/30">
                     <Icon className="h-6 w-6" aria-hidden="true" />
                   </span>
                   <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
@@ -224,7 +226,7 @@ export default async function HomePage() {
               >
                 <Image
                   src={destination.imageUrl}
-                  alt={destination.city}
+                  alt={`${destination.city}, Texas`}
                   fill
                   sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -244,11 +246,14 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 5. Become a Host CTA -- "camera locks, text fades in" scroll beat */}
       {/* ---------------------------------------------------------------- */}
-      <section id="cta" className="relative overflow-hidden bg-havena-ink py-24 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-havena-ink via-havena-ink/80 to-transparent" />
+      <section id="cta" className="relative overflow-hidden bg-brand-ink py-24 text-white">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-ink via-brand-ink/80 to-transparent" />
         <div className="container relative z-10">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-display text-3xl font-semibold sm:text-4xl">
+            {/* Was `text-black` on a dark `bg-brand-ink` section -- a
+                pre-existing contrast bug independent of the dark-mode issue,
+                fixed here alongside it. */}
+            <h2 className="font-display text-3xl font-semibold text-white sm:text-4xl">
               Have a place worth sharing?
             </h2>
             <p className="text-white/80">
