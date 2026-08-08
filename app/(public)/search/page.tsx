@@ -105,7 +105,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div>
       {/* 3D cinematic hero intro -- built by the Three.js/GSAP agent in parallel. */}
-      <div className="relative h-[30vh] min-h-[240px] w-full overflow-hidden bg-havena-ink">
+      <div className="relative h-[30vh] min-h-[240px] w-full overflow-hidden bg-brand-ink">
         <HeroScene />
       </div>
 

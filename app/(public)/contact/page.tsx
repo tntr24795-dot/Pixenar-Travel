@@ -22,8 +22,8 @@ export default function ContactPage() {
 
       <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
         <Mail className="h-4 w-4" />
-        <a href="mailto:support@havena.com" className="hover:text-foreground">
-          support@havena.com
+        <a href="mailto:support@pixenar-travel.com" className="hover:text-foreground">
+          support@pixenar-travel.com
         </a>
       </div>
 

@@ -37,7 +37,7 @@ export function HeroSearchBar() {
       className="mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl border border-white/20 bg-white/95 p-4 shadow-2xl backdrop-blur sm:flex-row sm:items-end sm:gap-2 sm:p-3"
     >
       <div className="flex-1 text-left">
-        <Label htmlFor="hero-search-location" className="text-havena-ink/70">
+        <Label htmlFor="hero-search-location" className="text-brand-ink/70">
           Where to
         </Label>
         <Input
@@ -54,7 +54,7 @@ export function HeroSearchBar() {
       <div className="hidden h-10 w-px bg-border sm:block" aria-hidden="true" />
 
       <div className="flex-1 text-left">
-        <Label htmlFor="hero-search-checkin" className="flex items-center gap-1 text-havena-ink/70">
+        <Label htmlFor="hero-search-checkin" className="flex items-center gap-1 text-brand-ink/70">
           <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
           Check-in
         </Label>
@@ -71,7 +71,7 @@ export function HeroSearchBar() {
       <div className="hidden h-10 w-px bg-border sm:block" aria-hidden="true" />
 
       <div className="flex-1 text-left">
-        <Label htmlFor="hero-search-checkout" className="flex items-center gap-1 text-havena-ink/70">
+        <Label htmlFor="hero-search-checkout" className="flex items-center gap-1 text-brand-ink/70">
           <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
           Check-out
         </Label>
@@ -89,13 +89,13 @@ export function HeroSearchBar() {
       <div className="hidden h-10 w-px bg-border sm:block" aria-hidden="true" />
 
       <div className="flex-1 text-left">
-        <span className="block text-sm font-medium text-havena-ink/70">Guests</span>
+        <span className="block text-sm font-medium text-brand-ink/70">Guests</span>
         <div className="flex items-center gap-2 pt-1">
           <button
             type="button"
             aria-label="Decrease guest count"
             onClick={() => setAdults((n) => Math.max(1, n - 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-input text-havena-ink transition-colors hover:bg-accent disabled:opacity-40"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-input text-brand-ink transition-colors hover:bg-accent disabled:opacity-40"
             disabled={adults <= 1}
           >
             <Minus className="h-3.5 w-3.5" />
@@ -107,7 +107,7 @@ export function HeroSearchBar() {
             type="button"
             aria-label="Increase guest count"
             onClick={() => setAdults((n) => Math.min(16, n + 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-input text-havena-ink transition-colors hover:bg-accent disabled:opacity-40"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-input text-brand-ink transition-colors hover:bg-accent disabled:opacity-40"
             disabled={adults >= 16}
           >
             <Plus className="h-3.5 w-3.5" />

@@ -97,7 +97,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   return (
     <div>
-      <div className="relative h-[36vh] min-h-[260px] w-full overflow-hidden bg-havena-ink">
+      <div className="relative h-[36vh] min-h-[260px] w-full overflow-hidden bg-brand-ink">
         <HeroScene />
       </div>
 
