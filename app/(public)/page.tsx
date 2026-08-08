@@ -149,7 +149,7 @@ export default async function HomePage() {
               Find your next unforgettable stay
             </h1>
             <p className="mx-auto max-w-xl text-balance text-base text-white/90 drop-shadow sm:text-lg">
-              Thoughtfully curated vacation rentals across Texas -- boutique hosts, honest pricing, booked in minutes.
+              Thoughtfully curated vacation rentals for wherever you're headed next -- boutique hosts, honest pricing, booked in minutes.
             </p>
           </div>
 
@@ -224,7 +224,7 @@ export default async function HomePage() {
               >
                 <Image
                   src={destination.imageUrl}
-                  alt={`${destination.city}, Texas`}
+                  alt={destination.city}
                   fill
                   sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -248,10 +248,10 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-havena-ink via-havena-ink/80 to-transparent" />
         <div className="container relative z-10">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-display text-3xl font-semibold text-black sm:text-4xl">
+            <h2 className="font-display text-3xl font-semibold sm:text-4xl">
               Have a place worth sharing?
             </h2>
-            <p className="text-black/70">
+            <p className="text-white/80">
               List your property on Pixenar Travel and reach travelers looking for something better than a hotel room.
               Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.
             </p>
