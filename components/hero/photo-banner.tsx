@@ -2,10 +2,15 @@ import Image from "next/image";
 
 /**
  * Small static real-photo banner used at the top of the Search and Listing
- * Detail pages -- same photo/license as the homepage's `PhotoHero` (Unsplash
- * License, free for commercial use, no attribution required). Plain,
- * non-animated `fill` image: these banners are only ~240-360px tall, too
- * short for the homepage's scroll cross-fade to read as intentional.
+ * Detail pages. Plain, non-animated `fill` image: these banners are only
+ * ~240-360px tall, too short for the homepage's scroll cross-fade to read
+ * as intentional.
+ *
+ * Image: a warm, minimalist living-room interior -- supplied directly by the
+ * client, who confirmed they own the rights to it (`public/images/living-room-hero.png`).
+ * Served from `public/` (a local file), not `images.unsplash.com` -- unlike
+ * the homepage hero's photos, this one isn't Unsplash-licensed, so it's kept
+ * out of the remote-image config entirely.
  *
  * Replaces the old `<HeroScene />` (Three.js/WebGL) usage on these two pages,
  * which ran the *entire* cinematic scene -- scroll-linked to `#hero`/`#cta`
@@ -16,7 +21,7 @@ export function PhotoBanner() {
   return (
     <div aria-hidden="true" className="absolute inset-0">
       <Image
-        src="https://images.unsplash.com/photo-1764273038713-afc0e677ca90?auto=format&fit=crop&w=1600&q=80"
+        src="/images/living-room-hero.png"
         alt=""
         fill
         sizes="100vw"
