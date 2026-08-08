@@ -2,8 +2,11 @@
 
 A full-stack Airbnb-style marketplace: Next.js 14 (App Router, TypeScript, Tailwind,
 shadcn/ui), Supabase (Postgres + Auth + Storage + Realtime + RLS), Stripe Connect
-(marketplace payments), Mapbox (search/geocoding), and a real-photography, scroll-driven
-homepage hero (`components/hero/photo-hero.tsx`) — built to the product/technical
+(marketplace payments), Mapbox (search/geocoding), and a real-photography 3D homepage
+hero — real Unsplash airplane/runway/sky photos mapped onto Three.js plane geometry with
+a scroll-driven camera dolly for genuine depth and parallax (`components/three/hero-scene.tsx`,
+`components/hero/hero-3d.tsx`), gracefully falling back to a plain 2D photo crossfade
+(`components/hero/photo-hero.tsx`) if WebGL isn't available — built to the product/technical
 guideline you provided.
 
 ## What's already real vs. what you need to plug in

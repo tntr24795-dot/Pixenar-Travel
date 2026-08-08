@@ -70,14 +70,24 @@ Project root: `/home/claude/pixenar-travel`. Work only inside this directory.
 
 ## Design language
 
-- **Public marketing pages** (home `/` hero, `/search` hero banner, `/listing/[slug]` hero
-  banner) use real, licensed photography (see `components/hero/photo-hero.tsx` and
-  `components/hero/photo-banner.tsx`) rather than a 3D/WebGL scene -- an earlier Three.js
-  "cinematic" hero was replaced: it looked like a cartoon rather than a real airplane, and
-  every browser's `<canvas>` handling is its own source of cross-platform bugs (see the
-  iOS Safari Dark Mode writeup that used to live in `components/three/world.ts`, before that
-  whole directory was deleted). Photos must be free for commercial use with no attribution
-  required (Unsplash License is what's used today) -- never use a watermarked/paid stock photo.
+- **Homepage hero** (`/` only) is a genuine 3D scene (`components/three/hero-scene.tsx`,
+  wrapped by `components/hero/hero-3d.tsx`): real Unsplash photographs (a runway shot and a
+  sky shot) mapped onto `THREE.PlaneGeometry` layers at different depths, with the camera
+  physically dollying between them as the user scrolls -- real perspective/parallax from an
+  actual moving camera, not a flat CSS crossfade and not a stylized/rendered 3D asset. An
+  earlier fully-synthetic low-poly Three.js airplane was rejected by the client for looking
+  like a cartoon; this approach keeps every pixel a real photograph and only uses 3D for the
+  camera movement. `components/three/webgl-error-boundary.tsx` catches any WebGL failure and
+  falls back to `components/hero/photo-hero.tsx`, a plain 2D photo crossfade of the exact
+  same two images -- same visual language, zero WebGL, for browsers/devices without solid
+  WebGL support. See `components/three/world.ts` for the full iOS Safari Dark Mode writeup
+  (opaque `alpha:false` renderer + always-defined `scene.background`, on top of the
+  `color-scheme: light` fix already in `app/layout.tsx`/`app/globals.css`) -- that bug
+  originally shipped on the fully-synthetic 3D hero and the fix must carry forward here.
+  `/search` and `/listing/[slug]` hero banners are short (240-360px) strips where a
+  scroll-depth story doesn't make sense, so they stay static: `components/hero/photo-banner.tsx`.
+  All photos must be free for commercial use with no attribution required (Unsplash License
+  is what's used today) -- never use a watermarked/paid stock photo.
 - **Everything else — search results list, listing detail body, checkout, account, host
   dashboard, admin dashboard — is clean, fast, standard shadcn/ui-style UI.** No heavy
   scroll animation. Functional first: tables, cards, forms.

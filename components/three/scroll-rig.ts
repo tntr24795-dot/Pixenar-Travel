@@ -1,67 +1,59 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-let scrollTriggerRegistered = false;
-function ensureScrollTriggerRegistered() {
-  if (!scrollTriggerRegistered) {
-    gsap.registerPlugin(ScrollTrigger);
-    scrollTriggerRegistered = true;
-  }
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
 }
 
-export interface ScrollRigTargets {
-  /** Called with the smoothed 0..1 "flight progress" on every scroll-linked tick. */
-  onProgress: (progress: number) => void;
-  heroEl: Element;
-  ctaEl: Element | null;
-  scrub?: number;
+interface ScrollRigOptions {
+  heroEl: HTMLElement;
+  ctaEl: HTMLElement | null;
+  onProgress: (value: number) => void;
 }
 
 /**
- * The "Scroll Cinema" layer: a single GSAP tween (tied to ScrollTrigger,
- * scrubbed for smoothing) that drives one continuous 0..1 "flight progress"
- * value across the whole homepage scroll -- from the top of the Hero section
- * to the bottom of the CTA section -- so the plane's takeoff reads as one
- * unbroken journey rather than several disjoint beats. `HeroScene`'s render
- * loop applies this value to the `Airplane` / `Runway` / `Sky` / camera each
- * frame. Kept as a plain class (not raw `.js` files) since this is a
- * React/Next app.
+ * Drives one smoothed 0..1 "flight progress" value across the entire
+ * hero -> CTA scroll range, via a single continuous GSAP tween scrubbed by
+ * ScrollTrigger. Kept intentionally simple (one tween, one callback) rather
+ * than several independent triggers, so the runway/sky crossfade and the
+ * camera dolly in HeroScene always stay perfectly in sync with each other.
  */
 export class ScrollRig {
+  private tween: gsap.core.Tween | null = null;
   private trigger: ScrollTrigger | null = null;
-  private readonly state = { value: 0 };
 
-  constructor(private readonly targets: ScrollRigTargets) {
-    ensureScrollTriggerRegistered();
+  constructor(private options: ScrollRigOptions) {
     this.build();
   }
 
   private build() {
-    const { onProgress, heroEl, ctaEl, scrub = 1.2 } = this.targets;
+    const { heroEl, ctaEl, onProgress } = this.options;
+    const state = { value: 0 };
 
-    const tween = gsap.to(this.state, {
+    this.tween = gsap.to(state, {
       value: 1,
       ease: "none",
-      onUpdate: () => onProgress(this.state.value),
+      onUpdate: () => onProgress(state.value),
       scrollTrigger: {
         trigger: heroEl,
         start: "top top",
         endTrigger: ctaEl ?? heroEl,
         end: ctaEl ? "bottom bottom" : "bottom top",
-        scrub,
+        scrub: true,
       },
     });
 
-    if (tween.scrollTrigger) this.trigger = tween.scrollTrigger;
+    this.trigger = this.tween.scrollTrigger ?? null;
   }
 
   refresh() {
-    ScrollTrigger.refresh();
+    this.trigger?.refresh();
   }
 
-  /** Kills the ScrollTrigger instance this rig created -- call from cleanup. */
   kill() {
+    this.tween?.kill();
     this.trigger?.kill();
+    this.tween = null;
     this.trigger = null;
   }
 }

@@ -1,62 +1,61 @@
 import * as THREE from "three";
 
-export interface WorldOptions {
-  canvas: HTMLCanvasElement;
-}
-
 /**
- * `World` owns the renderer + scene graph -- the "scene module" from the 3D
- * Cinematic guide (one class per concern), adapted to a single TS class
- * per concern-file since this is a React app rather than a folder of plain
- * `.js` files. One instance is created per `<HeroScene />` mount and torn
- * down in its cleanup function so no WebGL context leaks across navigations.
+ * iOS Safari Dark-Mode fix (read this before touching renderer/scene setup):
  *
- * IMPORTANT (iOS Safari Dark Mode fix): the previous version rendered with
- * `alpha: true` and never set `scene.background`, relying on the page's CSS
- * background to show through the transparent canvas. On iOS Safari, with
- * system Dark Mode on and no `color-scheme` declared anywhere in the app,
- * WebKit would sometimes paint that transparent/unstyled canvas backdrop
- * solid black instead of leaving it see-through -- making any hero text
- * sitting on top of it unreadable. The fix has two parts: this renderer is
- * now fully opaque (`alpha: false`), and `Sky` (see `sky.ts`) always keeps
- * `scene.background` set to a real, continuously-updated color. Between the
- * two, there is no transparent/unstyled region left for any browser to
- * darken -- the canvas always paints a real color, on every platform, in
- * every color scheme. `app/layout.tsx` also now explicitly declares
- * `color-scheme: light` as a second, independent layer of defense.
+ * The original "3D Cinematic" hero used a *transparent* WebGLRenderer
+ * (`alpha: true`) layered over page CSS, with no `scene.background` ever
+ * set. Under iOS/iPadOS Safari's system Dark Mode, WebKit can paint
+ * unstyled/transparent canvas regions solid black instead of leaving them
+ * see-through -- the canvas was rendering fine, but the *browser* was
+ * compositing it against a black backdrop, which made all our hero text
+ * unreadable.
+ *
+ * The fix has three parts, and all three matter:
+ *   1. `app/layout.tsx` sets `viewport.colorScheme = "light"`, which
+ *      renders `<meta name="color-scheme" content="light">` -- this tells
+ *      the browser this page has no dark theme, so it should not apply any
+ *      automatic dark treatment of its own.
+ *   2. `app/globals.css` sets `color-scheme: light` on `:root` as a CSS-level
+ *      backstop for the same thing.
+ *   3. Here: the renderer is created OPAQUE (`alpha: false`) and `scene`
+ *      always has a real `THREE.Color` background assigned before the first
+ *      frame renders. An opaque canvas with a real background color has
+ *      nothing "unstyled" for WebKit to paint black in the first place.
+ *
+ * Do not flip `alpha` back to `true` or ship a scene with no
+ * `scene.background` without re-testing on an actual iOS device in Dark
+ * Mode -- this exact bug has shipped twice in this project already.
  */
 export class World {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene: THREE.Scene;
 
-  constructor({ canvas }: WorldOptions) {
-    // Throws synchronously if a WebGL context can't be created -- callers
-    // must wrap construction in a try/catch to feed the error boundary.
+  constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
+      alpha: false, // opaque -- see writeup above
       antialias: true,
-      alpha: false,
       powerPreference: "high-performance",
     });
-    // Cap pixel ratio at 2x to avoid GPU overload on retina displays.
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    // Recreates film-camera exposure handling for realistic HDR-ish lighting.
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
 
     this.scene = new THREE.Scene();
-    // `Sky.constructor` sets an initial `scene.background` immediately and
-    // `Sky.update()` keeps it current every frame -- see the note above.
+    // Matches the runway photo's dusk tone so the very first paint (before
+    // textures finish decoding) never flashes an unstyled black/white frame.
+    this.scene.background = new THREE.Color("#2b2118");
   }
 
   setSize(width: number, height: number) {
-    // `false` (updateStyle) leaves CSS sizing to Tailwind classes on the canvas.
     this.renderer.setSize(width, height, false);
+  }
+
+  render(camera: THREE.Camera) {
+    this.renderer.render(this.scene, camera);
   }
 
   dispose() {
     this.renderer.dispose();
-    this.renderer.forceContextLoss();
   }
 }
