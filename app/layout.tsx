@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -19,9 +19,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Havena — Vacation Rental Marketplace",
+  title: "Pixenar Travel — Vacation Rental Marketplace",
   description:
-    "Havena is a boutique vacation-rental marketplace — discover thoughtfully curated stays and host your own place with confidence.",
+    "Pixenar Travel is a boutique vacation-rental marketplace — discover thoughtfully curated stays and host your own place with confidence.",
+};
+
+// This site only has a light design -- no dark theme is actually implemented
+// anywhere in the CSS. Explicitly declaring `colorScheme: "light"` (renders
+// as `<meta name="color-scheme" content="light">`) tells iOS/macOS Safari
+// (and other browsers) not to apply any automatic Dark Mode treatment of its
+// own to unstyled/transparent regions -- most notably the 3D hero's
+// `<canvas>`, which is what was causing the "background turns solid black in
+// iOS Dark Mode" bug. See `components/three/world.ts` for the full writeup
+// and the matching fix on the WebGL side.
+export const viewport: Viewport = {
+  colorScheme: "light",
+  themeColor: "#0B0E14",
 };
 
 export default function RootLayout({

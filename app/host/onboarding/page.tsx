@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StripeOnboardingButton } from "@/components/host/onboarding-actions";
 
 export const metadata = {
-  title: "Become a host — Havena",
+  title: "Become a host — Pixenar Travel",
 };
 
 export default async function HostOnboardingPage() {
@@ -35,7 +35,7 @@ export default async function HostOnboardingPage() {
     return (
       <div className="max-w-2xl">
         <div className="mb-8 text-center">
-          <h1 className="font-display text-4xl font-semibold">Become a Havena host</h1>
+          <h1 className="font-display text-4xl font-semibold">Become a Pixenar Travel host</h1>
           <p className="mt-3 text-muted-foreground">
             List your place, welcome guests, and get paid securely — all backed by Stripe.
           </p>

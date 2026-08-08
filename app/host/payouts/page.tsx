@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Payouts — Havena Host",
+  title: "Payouts — Pixenar Travel Host",
 };
 
 export default async function HostPayoutsPage() {
@@ -64,7 +64,7 @@ export default async function HostPayoutsPage() {
           </div>
 
           {!hostProfile.stripe_onboarding_complete && (
-            <div className="rounded-md border border-havena-gold/50 bg-havena-gold/10 p-4 text-sm">
+            <div className="rounded-md border border-brand-gold/50 bg-brand-gold/10 p-4 text-sm">
               Your Stripe setup isn't finished yet.{" "}
               <Link href="/host/onboarding" className="font-medium text-primary underline">
                 Finish onboarding

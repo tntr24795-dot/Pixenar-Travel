@@ -3,12 +3,24 @@
 @tailwind utilities;
 
 /*
- * Havena "boutique hospitality" palette — warm ink, coral/terracotta primary,
+ * Pixenar Travel "boutique hospitality" palette — warm ink, coral/terracotta primary,
  * gold accent, soft cream/mist background. HSL triplets (no `hsl()` wrapper)
  * so Tailwind can compose them as `hsl(var(--x))` / `hsl(var(--x) / <alpha>)`.
  */
 @layer base {
   :root {
+    /* This site only ships a light design (the `.dark` variables below are
+     * unused dead CSS -- nothing ever toggles a `.dark` class). Without this,
+     * iOS/macOS Safari treats the page's color scheme as "unspecified" and,
+     * combined with system Dark Mode, can render unstyled/transparent
+     * regions (notably the 3D hero's <canvas>) solid black instead of
+     * leaving them showing the actual page content -- see `world.ts` for the
+     * full writeup. Declaring this explicitly (also set via Next's
+     * `viewport.colorScheme` in `app/layout.tsx`, which renders the
+     * equivalent <meta name="color-scheme"> tag) is what fixes it.
+     */
+    color-scheme: light;
+
     --background: 40 38% 97%; /* soft cream */
     --foreground: 222 30% 10%; /* deep ink */
 
