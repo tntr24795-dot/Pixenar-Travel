@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { PhotoHero } from "@/components/hero/photo-hero";
+import { Hero3D } from "@/components/hero/hero-3d";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { PROPERTY_TYPES } from "@/constants";
@@ -135,7 +135,7 @@ export default async function HomePage() {
       {/* 1. Hero -- real-photo runway-to-sky background + DOM headline/search */}
       {/* ---------------------------------------------------------------- */}
       <section id="hero" className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-        <PhotoHero />
+        <Hero3D />
 
         {/* Gradient scrim behind the headline/search bar so text stays
             readable regardless of which part of the runway-to-sky gradient
