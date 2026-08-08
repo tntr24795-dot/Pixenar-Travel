@@ -15,7 +15,7 @@ import type { Database } from "@/types/database";
  * every `.from(table).select(...)` called through the session-bound client
  * types its `data` as `never[]`, even though the runtime object (cookies,
  * RLS, everything) is completely correct — reproduced identically with a
- * bare `createServerClient<Database>(...)` call with no Havena code
+ * bare `createServerClient<Database>(...)` call with no Pixenar Travel code
  * involved, and identically for every existing page in the app that uses
  * `lib/supabase/server.ts`, not just this admin section.
  *

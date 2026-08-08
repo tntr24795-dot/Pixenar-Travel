@@ -148,7 +148,7 @@ export function AvailabilityCalendar({
                 className={cn(
                   "flex aspect-square flex-col items-center justify-center rounded-md border text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40",
                   isBooked
-                    ? "border-havena-teal/40 bg-havena-teal/10 text-havena-teal"
+                    ? "border-brand-teal/40 bg-brand-teal/10 text-brand-teal"
                     : isBlocked
                       ? "border-destructive/40 bg-destructive/10 text-destructive"
                       : "border-border hover:border-primary/50",

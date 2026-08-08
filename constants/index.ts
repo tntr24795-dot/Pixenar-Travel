@@ -1,4 +1,4 @@
-export const APP_NAME = "Havena";
+export const APP_NAME = "Pixenar Travel";
 
 export const PROPERTY_TYPES = [
   { value: "house", label: "House" },

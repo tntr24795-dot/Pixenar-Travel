@@ -1,8 +1,8 @@
 {
-  "name": "havena",
+  "name": "pixenar-travel",
   "version": "0.1.0",
   "private": true,
-  "description": "Havena — Vacation Rental Marketplace (3D Cinematic MVP)",
+  "description": "Pixenar Travel — Vacation Rental Marketplace (3D Cinematic MVP)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

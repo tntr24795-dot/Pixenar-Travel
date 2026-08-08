@@ -43,7 +43,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        havena: {
+        brand: {
           ink: "#0B0E14",
           coral: "#FF5A5F",
           gold: "#E8B85A",

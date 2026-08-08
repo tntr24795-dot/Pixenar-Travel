@@ -1,5 +1,5 @@
 /**
- * Havena booking domain service — plain server-side TypeScript, no
+ * Pixenar Travel booking domain service — plain server-side TypeScript, no
  * "use client". This is the ONLY place bookings are created, confirmed,
  * cancelled or expired. Route handlers under `app/api/**` are thin wrappers
  * around these functions: they authenticate the caller, then delegate here.
