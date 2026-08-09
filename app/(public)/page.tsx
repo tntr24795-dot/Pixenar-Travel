@@ -141,7 +141,7 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="hero"
-        className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-cover bg-fixed"
+        className="relative flex h-screen w-full items-center justify-center bg-cover bg-fixed"
         style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
       >
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-havena-ink" />
@@ -248,7 +248,7 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="cta"
-        className="relative overflow-hidden bg-cover bg-fixed py-24 text-white"
+        className="relative bg-cover bg-fixed py-24 text-white"
         style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
       >
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-havena-ink" />
