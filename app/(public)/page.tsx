@@ -210,7 +210,7 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 4. Popular destinations                                          */}
       {/* ---------------------------------------------------------------- */}
-      <section aria-label="Popular destinations" className="bg-secondary/40 py-16">
+      <section aria-label="Popular destinations" className="bg-background py-16">
         <div className="container">
           <h2 className="mb-8 font-display text-2xl font-semibold text-foreground sm:text-3xl">
             Popular destinations

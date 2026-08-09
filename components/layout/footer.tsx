@@ -32,7 +32,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-secondary/40">
+    <footer className="border-t border-border bg-background">
       <div className="container py-12">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
