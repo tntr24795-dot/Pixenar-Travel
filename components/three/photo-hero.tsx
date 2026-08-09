@@ -13,7 +13,7 @@ const HERO_PHOTO_URL = "/hero-living-room.jpg";
  */
 export default function PhotoHero() {
   return (
-    <div className="fixed inset-0 -z-10 h-full w-full overflow-hidden">
+    <div className="fixed inset-0 z-0 h-full w-full overflow-hidden">
       <div
         aria-hidden="true"
         className="absolute inset-0 h-full w-full bg-cover"
