@@ -62,9 +62,9 @@ export function FeaturedPropertiesReveal({ properties }: { properties: FeaturedP
 
   if (properties.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-12 text-center">
-        <p className="text-lg font-medium text-foreground">No featured stays yet</p>
-        <p className="mt-2 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-dashed border-white/40 p-12 text-center">
+        <p className="text-lg font-medium text-white drop-shadow-lg">No featured stays yet</p>
+        <p className="mt-2 text-sm text-white/85 drop-shadow">
           New listings are being reviewed -- check back soon, or explore search to see everything live.
         </p>
       </div>
@@ -90,7 +90,7 @@ export function FeaturedPropertiesReveal({ properties }: { properties: FeaturedP
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-teal/30 to-brand-gold/30 text-sm text-muted-foreground">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-havena-teal/30 to-havena-gold/30 text-sm text-muted-foreground">
                 No photo yet
               </div>
             )}
@@ -102,7 +102,7 @@ export function FeaturedPropertiesReveal({ properties }: { properties: FeaturedP
               </h3>
               {property.averageRating > 0 && (
                 <span className="flex shrink-0 items-center gap-1 text-sm text-foreground">
-                  <Star className="h-3.5 w-3.5 fill-brand-gold text-brand-gold" />
+                  <Star className="h-3.5 w-3.5 fill-havena-gold text-havena-gold" />
                   {property.averageRating.toFixed(1)}
                 </span>
               )}

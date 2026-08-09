@@ -162,8 +162,13 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 2. Property categories                                           */}
       {/* ---------------------------------------------------------------- */}
-      <section aria-label="Browse by property type" className="border-b border-border bg-background py-10">
-        <div className="container">
+      <section
+        aria-label="Browse by property type"
+        className="relative bg-cover bg-fixed py-10"
+        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/50 to-havena-ink/70" />
+        <div className="container relative z-10">
           <div className="flex gap-6 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible md:grid-cols-9">
             {PROPERTY_TYPES.map((type) => {
               const Icon = PROPERTY_TYPE_ICONS[type.value] ?? HomeIcon;
@@ -173,10 +178,10 @@ export default async function HomePage() {
                   href={`/search?propertyType=${type.value}`}
                   className="group flex shrink-0 flex-col items-center gap-2 text-center"
                 >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-havena-ink transition-colors group-hover:bg-havena-gold/30">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors group-hover:bg-havena-gold/40">
                     <Icon className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
+                  <span className="text-xs font-medium text-white drop-shadow group-hover:text-havena-gold">
                     {type.label}
                   </span>
                 </Link>
@@ -189,18 +194,23 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 3. Featured properties -- "Destinations reveal" scroll beat       */}
       {/* ---------------------------------------------------------------- */}
-      <section id="destinations" className="bg-background py-16">
-        <div className="container">
+      <section
+        id="destinations"
+        className="relative bg-cover bg-fixed py-16"
+        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/50 to-havena-ink/70" />
+        <div className="container relative z-10">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
+              <h2 className="font-display text-2xl font-semibold text-white drop-shadow-lg sm:text-3xl">
                 Featured stays
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-white/85 drop-shadow">
                 Highly rated places our guests keep coming back to.
               </p>
             </div>
-            <Button asChild variant="ghost" className="hidden sm:inline-flex">
+            <Button asChild variant="secondary" className="hidden sm:inline-flex">
               <Link href="/search">Explore all stays</Link>
             </Button>
           </div>
@@ -212,9 +222,14 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 4. Popular destinations                                          */}
       {/* ---------------------------------------------------------------- */}
-      <section aria-label="Popular destinations" className="bg-background py-16">
-        <div className="container">
-          <h2 className="mb-8 font-display text-2xl font-semibold text-foreground sm:text-3xl">
+      <section
+        aria-label="Popular destinations"
+        className="relative bg-cover bg-fixed py-16"
+        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/50 to-havena-ink/70" />
+        <div className="container relative z-10">
+          <h2 className="mb-8 font-display text-2xl font-semibold text-white drop-shadow-lg sm:text-3xl">
             Popular destinations
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
