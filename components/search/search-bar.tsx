@@ -45,6 +45,24 @@ export function SearchBar({ className }: SearchBarProps) {
   const [infants, setInfants] = React.useState(Number(searchParams.get("infants") ?? 0) || 0);
   const [pets, setPets] = React.useState(Number(searchParams.get("pets") ?? 0) || 0);
 
+  // Both dropdowns are controlled (rather than letting Radix manage their
+  // own open state) so they can be force-closed on scroll below. Without
+  // this, scrolling the page while a dropdown is open leaves it visually
+  // "stuck" on screen -- it doesn't reposition or close, so whatever page
+  // content scrolls underneath it reads as overlapping, garbled text.
+  const [datesOpen, setDatesOpen] = React.useState(false);
+  const [guestsOpen, setGuestsOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!datesOpen && !guestsOpen) return;
+    const closeAll = () => {
+      setDatesOpen(false);
+      setGuestsOpen(false);
+    };
+    window.addEventListener("scroll", closeAll, { passive: true, capture: true });
+    return () => window.removeEventListener("scroll", closeAll, { capture: true });
+  }, [datesOpen, guestsOpen]);
+
   const guestSummary = React.useMemo(() => {
     const total = adults + children;
     if (total <= 0) return "Add guests";
@@ -101,7 +119,7 @@ export function SearchBar({ className }: SearchBarProps) {
         />
       </div>
 
-      <Popover>
+      <Popover open={datesOpen} onOpenChange={setDatesOpen}>
         <PopoverTrigger asChild>
           <Button type="button" variant="outline" className="justify-start gap-2 font-normal">
             <CalendarIcon className="h-4 w-4" />
@@ -122,7 +140,7 @@ export function SearchBar({ className }: SearchBarProps) {
         </PopoverContent>
       </Popover>
 
-      <Popover>
+      <Popover open={guestsOpen} onOpenChange={setGuestsOpen}>
         <PopoverTrigger asChild>
           <Button type="button" variant="outline" className="justify-start gap-2 font-normal">
             <Users className="h-4 w-4" />
