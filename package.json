@@ -1,8 +1,8 @@
 {
-  "name": "pixenar-travel",
+  "name": "havena",
   "version": "0.1.0",
   "private": true,
-  "description": "Pixenar Travel — Vacation Rental Marketplace",
+  "description": "Pixenar Travel — Vacation Rental Marketplace (3D Cinematic MVP)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -34,7 +34,6 @@
     "date-fns": "^3.6.0",
     "gsap": "^3.12.5",
     "lucide-react": "^0.441.0",
-    "mapbox-gl": "^3.6.0",
     "next": "14.2.13",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -49,7 +48,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/mapbox-gl": "^3.4.0",
     "@types/node": "^20.16.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",

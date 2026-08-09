@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
-import { geocodeAddress } from "@/lib/mapbox/geocode";
+import { geocodeAddress } from "@/lib/google/geocode";
 
 /**
  * POST /api/host/geocode
  *
- * Wraps `geocodeAddress()` (server-only, needs MAPBOX_SECRET_TOKEN) so the
+ * Wraps `geocodeAddress()` (server-only, needs GOOGLE_MAPS_SERVER_API_KEY) so the
  * listing wizard's "Look up coordinates" button can call it from the
  * browser without ever shipping the secret Mapbox token to the client.
  *
