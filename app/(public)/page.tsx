@@ -244,14 +244,13 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 5. Become a Host CTA -- "camera locks, text fades in" scroll beat */}
       {/* ---------------------------------------------------------------- */}
-      <section id="cta" className="relative overflow-hidden bg-havena-ink py-24 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-havena-ink via-havena-ink/80 to-transparent" />
+      <section id="cta" className="relative overflow-hidden py-24 text-white">
         <div className="container relative z-10">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-display text-3xl font-semibold sm:text-4xl">
+            <h2 className="font-display text-3xl font-semibold drop-shadow-lg sm:text-4xl">
               Have a place worth sharing?
             </h2>
-            <p className="text-white/80">
+            <p className="text-white/90 drop-shadow">
               List your property on Pixenar Travel and reach travelers looking for something better than a hotel room.
               Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.
             </p>
