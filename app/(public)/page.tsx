@@ -137,12 +137,12 @@ export default async function HomePage() {
 
   return (
     <>
+      <PhotoHero />
+      <div className="relative z-10">
       {/* ---------------------------------------------------------------- */}
       {/* 1. Hero -- real airplane-on-runway photo + scroll "takeoff" anim  */}
       {/* ---------------------------------------------------------------- */}
       <section id="hero" className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-        <PhotoHero />
-
         <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-6 text-center">
           <div className="space-y-4">
             <h1 className="font-display text-4xl font-semibold tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
@@ -260,6 +260,7 @@ export default async function HomePage() {
           </ScrollFadeIn>
         </div>
       </section>
+      </div>
     </>
   );
 }
