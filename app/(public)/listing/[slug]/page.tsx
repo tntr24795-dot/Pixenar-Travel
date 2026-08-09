@@ -6,12 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import { PROPERTY_TYPES, ROOM_TYPES } from "@/constants";
 import type { Database } from "@/types/database";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Gallery } from "@/components/listings/gallery";
 import { ReviewsList, type ReviewItem } from "@/components/listings/reviews-list";
 import { ListingsMap } from "@/components/search/listings-map";
 import { PricingCard } from "@/components/booking/pricing-card";
-import { PhotoBanner } from "@/components/hero/photo-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -95,8 +95,14 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   return (
     <div>
-      <div className="relative h-[36vh] min-h-[260px] w-full overflow-hidden bg-brand-ink">
-        <PhotoBanner />
+      <div className="relative h-[36vh] min-h-[260px] w-full overflow-hidden bg-havena-ink">
+        <Image
+          src="/hero-banner-living-room.jpg"
+          alt="A cozy living room in one of our vacation rentals"
+          fill
+          priority
+          className="object-cover"
+        />
       </div>
 
       <div className="container max-w-6xl py-8">

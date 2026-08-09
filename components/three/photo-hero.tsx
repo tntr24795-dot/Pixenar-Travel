@@ -16,8 +16,8 @@ export default function PhotoHero() {
     <div className="fixed inset-0 -z-10 h-full w-full overflow-hidden">
       <div
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full bg-cover bg-center"
-        style={{ backgroundImage: `url(${HERO_PHOTO_URL})` }}
+        className="absolute inset-0 h-full w-full bg-cover"
+        style={{ backgroundImage: `url(${HERO_PHOTO_URL})`, backgroundPosition: "center 80%" }}
       />
       {/* Dark scrim so the headline/search bar stay readable over the photo,
           regardless of how bright the room is in a given part of the image. */}

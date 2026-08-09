@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MapIcon } from "lucide-react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -19,7 +20,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SortSelect } from "./sort-select";
-import { PhotoBanner } from "@/components/hero/photo-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -102,8 +102,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div>
-      <div className="relative h-[30vh] min-h-[240px] w-full overflow-hidden bg-brand-ink">
-        <PhotoBanner />
+      {/* Search-page banner -- same living room photo as the homepage hero. */}
+      <div className="relative h-[30vh] min-h-[240px] w-full overflow-hidden bg-havena-ink">
+        <Image
+          src="/hero-banner-living-room.jpg"
+          alt="A cozy living room in one of our vacation rentals"
+          fill
+          priority
+          className="object-cover"
+        />
       </div>
 
       <div className="border-b border-border bg-background/95 py-4">
