@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -24,12 +23,6 @@ import {
   type FeaturedProperty,
 } from "./_components/featured-properties-reveal";
 import { ScrollFadeIn } from "./_components/scroll-fade-in";
-
-// Client/browser-only (uses GSAP ScrollTrigger, which needs the DOM) --
-// dynamic-import with `ssr: false` so it never blocks server rendering.
-const PhotoHero = dynamic(() => import("@/components/three/photo-hero"), {
-  ssr: false,
-});
 
 const PROPERTY_TYPE_ICONS: Record<string, LucideIcon> = {
   house: HomeIcon,
@@ -137,12 +130,21 @@ export default async function HomePage() {
 
   return (
     <>
-      <PhotoHero />
-      <div className="relative z-10">
       {/* ---------------------------------------------------------------- */}
-      {/* 1. Hero -- real airplane-on-runway photo + scroll "takeoff" anim  */}
+      {/* 1. Hero -- photo background pinned via native CSS background-    */}
+      {/* attachment:fixed (Tailwind's `bg-fixed`) instead of a separate   */}
+      {/* position:fixed layer + z-index juggling, which kept breaking     */}
+      {/* stacking for later sections in different browsers. Each section  */}
+      {/* that wants this "photo stays put while you scroll" look just     */}
+      {/* sets its own background this way -- fully self-contained, no     */}
+      {/* interaction with any other element on the page.                  */}
       {/* ---------------------------------------------------------------- */}
-      <section id="hero" className="relative flex h-screen w-full items-center justify-center overflow-hidden">
+      <section
+        id="hero"
+        className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-cover bg-fixed"
+        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-havena-ink" />
         <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-6 text-center">
           <div className="space-y-4">
             <h1 className="font-display text-4xl font-semibold tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
@@ -244,7 +246,12 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* 5. Become a Host CTA -- "camera locks, text fades in" scroll beat */}
       {/* ---------------------------------------------------------------- */}
-      <section id="cta" className="relative overflow-hidden py-24 text-white">
+      <section
+        id="cta"
+        className="relative overflow-hidden bg-cover bg-fixed py-24 text-white"
+        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-havena-ink" />
         <div className="container relative z-10">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
             <h2 className="font-display text-3xl font-semibold drop-shadow-lg sm:text-4xl">
@@ -260,7 +267,6 @@ export default async function HomePage() {
           </ScrollFadeIn>
         </div>
       </section>
-      </div>
     </>
   );
 }
