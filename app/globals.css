@@ -9,77 +9,49 @@
  */
 @layer base {
   :root {
-    /* This site only ships a light design (the `.dark` variables below are
-     * unused dead CSS -- nothing ever toggles a `.dark` class). Without this,
-     * iOS/macOS Safari treats the page's color scheme as "unspecified" and,
-     * combined with system Dark Mode, can render unstyled/transparent
-     * regions (notably the 3D hero's <canvas>) solid black instead of
-     * leaving them showing the actual page content -- see `world.ts` for the
-     * full writeup. Declaring this explicitly (also set via Next's
-     * `viewport.colorScheme` in `app/layout.tsx`, which renders the
-     * equivalent <meta name="color-scheme"> tag) is what fixes it.
-     */
     color-scheme: light;
 
-    --background: 40 38% 97%; /* soft cream */
-    --foreground: 222 30% 10%; /* deep ink */
-
+    --background: 40 38% 97%;
+    --foreground: 222 30% 10%;
     --card: 0 0% 100%;
     --card-foreground: 222 30% 10%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222 30% 10%;
-
-    --primary: 5 85% 63%; /* coral / terracotta */
+    --primary: 5 85% 63%;
     --primary-foreground: 40 38% 98%;
-
-    --secondary: 32 40% 92%; /* warm mist */
+    --secondary: 32 40% 92%;
     --secondary-foreground: 222 30% 12%;
-
     --muted: 32 25% 92%;
     --muted-foreground: 222 12% 40%;
-
-    --accent: 40 68% 58%; /* warm gold */
+    --accent: 40 68% 58%;
     --accent-foreground: 222 30% 10%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 40 38% 98%;
-
     --border: 32 25% 87%;
     --input: 32 25% 87%;
     --ring: 5 85% 63%;
-
     --radius: 0.75rem;
-
     --font-display: var(--font-fraunces);
     --font-sans: var(--font-inter);
   }
 
   .dark {
-    --background: 222 32% 8%; /* deep ink */
+    --background: 222 32% 8%;
     --foreground: 40 30% 96%;
-
     --card: 222 28% 11%;
     --card-foreground: 40 30% 96%;
-
     --popover: 222 28% 11%;
     --popover-foreground: 40 30% 96%;
-
     --primary: 5 80% 60%;
     --primary-foreground: 222 32% 8%;
-
     --secondary: 222 20% 16%;
     --secondary-foreground: 40 30% 96%;
-
     --muted: 222 20% 16%;
     --muted-foreground: 32 15% 65%;
-
     --accent: 40 65% 55%;
     --accent-foreground: 222 32% 8%;
-
     --destructive: 0 63% 45%;
     --destructive-foreground: 40 30% 96%;
-
     --border: 222 20% 20%;
     --input: 222 20% 20%;
     --ring: 5 80% 60%;
@@ -97,15 +69,15 @@
 
 @layer components {
   .pixenar-map-pin {
-    @apply relative rounded-full border-2 border-white bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-lg transition duration-200 hover:-translate-y-1 hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
-  }
-
-  .pixenar-map-pin::after {
-    content: "";
-    @apply absolute left-1/2 top-full -translate-x-1/2 border-x-[6px] border-t-[7px] border-x-transparent border-t-primary;
+    @apply rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-bold text-foreground shadow-md transition duration-150 hover:-translate-y-0.5 hover:scale-105 hover:bg-foreground hover:text-background hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    white-space: nowrap;
   }
 
   .mapboxgl-ctrl-group {
     @apply overflow-hidden rounded-xl border-0 shadow-lg;
+  }
+
+  .mapboxgl-ctrl-top-right {
+    @apply right-2 top-2;
   }
 }
