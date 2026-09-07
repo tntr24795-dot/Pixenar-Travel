@@ -24,6 +24,11 @@ import {
 } from "./_components/featured-properties-reveal";
 import { ScrollFadeIn } from "./_components/scroll-fade-in";
 
+// The homepage reads the visitor session and live listings. Declaring this
+// explicitly prevents Next.js from mistaking the cookie read for a build-time
+// error and baking an empty featured-stays state into the deployment.
+export const dynamic = "force-dynamic";
+
 const PROPERTY_TYPE_ICONS: Record<string, LucideIcon> = {
   house: HomeIcon,
   apartment: Building2,

@@ -9,7 +9,7 @@ import { searchListings } from "@/lib/listings/searchListings";
 import type { Database } from "@/types/database";
 import { SearchBar } from "@/components/search/search-bar";
 import { Filters } from "@/components/search/filters";
-import { ListingsMap } from "@/components/search/listings-map";
+import { ListingsMap, type MapPin } from "@/components/search/listings-map";
 import { ListingCard } from "@/components/listings/listing-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,18 +87,33 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   // installed @supabase/ssr and @supabase/supabase-js versions in this
   // environment (see app/api/listings/route.ts for the full explanation).
   const supabase = createClient() as unknown as SupabaseClient<Database>;
-  const result = await searchListings(supabase, { ...query, page, pageSize });
+  let searchUnavailable = false;
+  const result = await searchListings(supabase, { ...query, page, pageSize }).catch((error) => {
+    searchUnavailable = true;
+    console.error("[search page] failed to load listings:", error);
+    return {
+      listings: [],
+      page,
+      pageSize,
+      total: 0,
+      totalPages: 1,
+    };
+  });
 
-  const pins = result.listings
-    .filter((l): l is typeof l & { latitude: number; longitude: number } => l.latitude != null && l.longitude != null)
-    .map((l) => ({
-      id: l.id,
-      slug: l.slug,
-      latitude: l.latitude,
-      longitude: l.longitude,
-      priceCents: l.nightlyPriceCents,
-      currency: l.currency,
-    }));
+  const pins: MapPin[] = result.listings.flatMap((listing) =>
+    listing.latitude != null && listing.longitude != null
+      ? [
+          {
+            id: listing.id,
+            slug: listing.slug,
+            latitude: listing.latitude,
+            longitude: listing.longitude,
+            priceCents: listing.nightlyPriceCents,
+            currency: listing.currency,
+          },
+        ]
+      : []
+  );
 
   return (
     <div>
@@ -156,11 +171,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
           <section>
             {result.listings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-24 text-center">
-                <p className="text-lg font-medium">No stays match your search</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Try widening your dates, price range, or removing a filter.
+              <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm">
+                <span className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-secondary text-primary">
+                  <MapIcon className="h-6 w-6" aria-hidden="true" />
+                </span>
+                <p className="font-display text-xl font-semibold">
+                  {searchUnavailable ? "Search is temporarily unavailable" : "No stays match your search"}
                 </p>
+                <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  {searchUnavailable
+                    ? "We couldn't load stays just now. Please refresh the page in a moment."
+                    : "Try widening your dates, price range, or removing a filter."}
+                </p>
+                <Button asChild variant="outline" className="mt-6">
+                  <Link href="/search">{searchUnavailable ? "Try again" : "Clear all filters"}</Link>
+                </Button>
               </div>
             ) : (
               <>

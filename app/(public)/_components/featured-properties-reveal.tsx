@@ -62,11 +62,17 @@ export function FeaturedPropertiesReveal({ properties }: { properties: FeaturedP
 
   if (properties.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/40 p-12 text-center">
-        <p className="text-lg font-medium text-white drop-shadow-lg">No featured stays yet</p>
-        <p className="mt-2 text-sm text-white/85 drop-shadow">
+      <div className="rounded-2xl border border-border bg-card px-6 py-12 text-center shadow-sm">
+        <p className="font-display text-xl font-semibold text-foreground">No featured stays yet</p>
+        <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
           New listings are being reviewed -- check back soon, or explore search to see everything live.
         </p>
+        <Link
+          href="/search"
+          className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+        >
+          Explore all stays
+        </Link>
       </div>
     );
   }

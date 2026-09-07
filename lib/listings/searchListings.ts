@@ -133,7 +133,14 @@ export async function searchListings(
     );
 
   if (params.location) {
-    const term = `%${params.location}%`;
+    // PostgREST reserves commas, parentheses, quotes and backslashes in
+    // `.or()` expressions. Quote and escape the user-entered location so a
+    // perfectly valid destination can never turn into a malformed filter.
+    const location = params.location
+      .trim()
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"');
+    const term = `"%${location}%"`;
     query = query.or(`city.ilike.${term},state.ilike.${term},country.ilike.${term}`);
   }
 
