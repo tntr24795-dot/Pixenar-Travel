@@ -159,7 +159,7 @@ export default async function HomePage() {
             <h1 className="max-w-3xl font-display text-5xl font-semibold leading-[1.02] tracking-tight text-white drop-shadow-lg sm:text-6xl md:text-7xl">
               Stay somewhere<br />worth remembering.
             </h1>
-            <p className="max-w-xl text-balance text-base leading-relaxed text-white/90 drop-shadow sm:text-lg">
+            <p className="max-w-xl text-balance text-base font-medium leading-relaxed text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.75)] sm:text-lg">
               Discover character-filled homes and thoughtful hosts for your next escape.
             </p>
           </div>
@@ -272,10 +272,10 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,184,90,.35),transparent_42%),linear-gradient(135deg,rgba(11,14,20,.10),rgba(11,14,20,.45))]" />
         <div className="container relative z-10">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-display text-3xl font-semibold drop-shadow-lg sm:text-4xl">
+            <h2 className="font-display text-3xl font-semibold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.8)] sm:text-4xl">
               Have a place worth sharing?
             </h2>
-            <p className="text-white/90 drop-shadow">
+            <p className="font-medium leading-relaxed text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               List your property on Pixenar Travel and reach travelers looking for something better than a hotel room.
               Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.
             </p>
