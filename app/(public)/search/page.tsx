@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { searchQuerySchema } from "@/lib/validation/schemas";
 import { searchListings } from "@/lib/listings/searchListings";
+import { geocodeAddress } from "@/lib/mapbox/geocode";
 import type { Database } from "@/types/database";
 import { SearchBar } from "@/components/search/search-bar";
 import { Filters } from "@/components/search/filters";
@@ -100,6 +101,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     };
   });
 
+  // Center the map on the destination the traveler chose, even when that
+  // destination does not have a published listing yet. Mapbox caches this
+  // lookup server-side, so repeat searches do not add unnecessary latency.
+  const selectedDestination = query.location
+    ? await geocodeAddress(query.location).catch((error) => {
+        console.error("[search page] failed to locate destination:", error);
+        return null;
+      })
+    : null;
+
   const pins: MapPin[] = result.listings.flatMap((listing) =>
     listing.latitude != null && listing.longitude != null
       ? [
@@ -158,7 +169,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <SheetHeader className="p-4">
                   <SheetTitle>Map</SheetTitle>
                 </SheetHeader>
-                <ListingsMap pins={pins} className="h-[calc(100dvh-64px)] w-full rounded-none" />
+                <ListingsMap
+                  pins={pins}
+                  centerLat={selectedDestination?.latitude}
+                  centerLng={selectedDestination?.longitude}
+                  zoom={selectedDestination ? 10 : 11}
+                  className="h-[calc(100dvh-64px)] w-full rounded-none"
+                />
               </SheetContent>
             </Sheet>
           </div>
@@ -238,7 +255,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
           <aside className="hidden lg:block">
             <div className="sticky top-24 h-[calc(100vh-8rem)]">
-              <ListingsMap pins={pins} className="h-full w-full rounded-2xl" />
+              <ListingsMap
+                pins={pins}
+                centerLat={selectedDestination?.latitude}
+                centerLng={selectedDestination?.longitude}
+                zoom={selectedDestination ? 10 : 11}
+                className="h-full w-full rounded-2xl"
+              />
             </div>
           </aside>
         </div>

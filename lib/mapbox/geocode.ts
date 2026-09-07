@@ -16,8 +16,13 @@ type MapboxGeocodingResponse = {
 };
 
 function getToken() {
-  const token = process.env.MAPBOX_SECRET_TOKEN;
-  if (!token) throw new Error("MAPBOX_SECRET_TOKEN is not set.");
+  // Server-side geocoding can use either the dedicated secret token or the
+  // public token already required by the map. This keeps destination maps
+  // working on deployments that only configured the original public token.
+  const token =
+    process.env.MAPBOX_SECRET_TOKEN ??
+    process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  if (!token) throw new Error("A Mapbox access token is not set.");
   return token;
 }
 
