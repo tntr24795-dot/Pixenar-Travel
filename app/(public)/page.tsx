@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FooterContent } from "@/components/layout/footer-content";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { PROPERTY_TYPES } from "@/constants";
@@ -157,16 +158,21 @@ export default async function HomePage() {
 
       <section
         id="cta"
-        className="relative min-h-[420px] overflow-hidden bg-havena-teal bg-cover bg-center py-24 text-white"
+        className="relative min-h-[760px] overflow-hidden bg-havena-teal bg-cover bg-center bg-no-repeat text-white lg:min-h-[820px]"
         style={{ backgroundImage: `url(${ORIGINAL_BEDROOM_IMAGE})` }}
       >
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(11,14,20,.68),rgba(11,14,20,.28)_60%,rgba(11,14,20,.18))]" />
-        <div className="container relative z-10 flex min-h-[228px] items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(11,14,20,.14),rgba(11,14,20,.24)_48%,rgba(11,14,20,.62)_100%)]" />
+
+        <div className="container relative z-10 flex min-h-[440px] items-center justify-center py-20 lg:min-h-[500px]">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-display text-3xl font-semibold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.8)] sm:text-4xl">Have a place worth sharing?</h2>
-            <p className="font-medium leading-relaxed text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">List your property on Pixenar Travel and reach travelers looking for something better than a hotel room. Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.</p>
+            <h2 className="font-display text-4xl font-semibold text-white [text-shadow:0_3px_12px_rgba(0,0,0,0.85)] sm:text-5xl">Have a place worth sharing?</h2>
+            <p className="max-w-xl text-base font-medium leading-relaxed text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.9)] sm:text-lg">List your property on Pixenar Travel and reach travelers looking for something better than a hotel room. Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.</p>
             <Button asChild size="lg" variant="secondary"><Link href="/become-a-host">Become a host</Link></Button>
           </ScrollFadeIn>
+        </div>
+
+        <div className="relative z-10 border-t border-white/10 bg-black/25 backdrop-blur-[1px]">
+          <FooterContent />
         </div>
       </section>
     </>
