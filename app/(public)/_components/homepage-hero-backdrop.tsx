@@ -1,22 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const HERO_IMAGES = [
   {
     src: "/images/home-kitchen.webp",
-    alt: "A bright modern kitchen with warm wood floors",
     cropClassName: "object-center",
   },
   {
     src: "/images/home-living-room.webp",
-    alt: "A calm, sunlit living room",
     cropClassName: "object-center md:object-[center_68%]",
   },
   {
-    src: "/images/home-bedroom.webp",
-    alt: "A refined bedroom overlooking the city",
+    // Temporary diagnostic: use the exact bedroom asset from the commit
+    // immediately before the sharper-image replacement.
+    src: "https://raw.githubusercontent.com/tntr24795-dot/Pixenar-Travel/dd5465936a5da8c8ece4bd733ba173791abf3058/public/images/home-bedroom.webp",
     cropClassName: "object-center",
   },
 ] as const;
@@ -51,16 +49,18 @@ export function HomepageHeroBackdrop() {
   return (
     <div className="absolute inset-0 overflow-hidden bg-havena-ink" aria-hidden="true">
       {HERO_IMAGES.map((image, index) => (
-        <Image
+        <img
           key={image.src}
           src={image.src}
           alt=""
-          fill
-          priority={index === 0}
-          quality={92}
-          sizes="100vw"
-          onError={() => setFailedImages((current) => current.includes(index) ? current : [...current, index])}
-          className={`object-cover transition-[opacity,transform] duration-1000 ease-out ${image.cropClassName} ${
+          loading={index === 0 ? "eager" : "lazy"}
+          decoding="async"
+          onError={() =>
+            setFailedImages((current) =>
+              current.includes(index) ? current : [...current, index]
+            )
+          }
+          className={`absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-1000 ease-out ${image.cropClassName} ${
             index === activeImage && !failedImages.includes(index)
               ? "scale-100 opacity-100"
               : "pointer-events-none scale-[1.025] opacity-0"
