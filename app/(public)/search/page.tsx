@@ -102,15 +102,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div>
-      {/* Search-page banner -- same living room photo as the homepage hero. */}
-      <div className="relative h-[30vh] min-h-[240px] w-full overflow-hidden bg-havena-ink">
+      <div className="relative h-[22vh] min-h-[190px] w-full overflow-hidden bg-havena-ink">
         <Image
           src="/hero-banner-living-room.jpg"
           alt="A cozy living room in one of our vacation rentals"
           fill
           priority
-          className="object-cover"
+          className="object-cover opacity-70"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-havena-ink/75 to-transparent" />
+        <div className="container relative flex h-full items-center">
+          <div className="max-w-xl text-white">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-havena-gold">Find your place</p>
+            <h1 className="mt-2 font-display text-4xl font-semibold sm:text-5xl">Stays made for the way you travel</h1>
+          </div>
+        </div>
       </div>
 
       <div className="border-b border-border bg-background/95 py-4">

@@ -30,23 +30,12 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
   },
 ];
 
-/**
- * NOTE: this footer renders on every page site-wide (see app/layout.tsx),
- * not just the homepage -- it now shares the same living-room photo
- * background as the homepage's Hero/CTA sections, per the site-wide "no
- * opaque boxes, everything floats on the photo" direction. If a plainer
- * footer is wanted specifically on non-marketing pages (search, dashboards,
- * account/admin screens), that would need a second footer variant --
- * ask and I'll split it out.
- */
 export function Footer() {
   return (
-    <footer
-      className="relative bg-cover bg-fixed text-white"
-      style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/60 to-havena-ink/80" />
-      <div className="container relative z-10 py-12">
+    <footer className="relative overflow-hidden bg-havena-ink text-white">
+      <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-havena-teal/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+      <div className="container relative z-10 py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
             <Link

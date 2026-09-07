@@ -141,17 +141,20 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="hero"
-        className="relative flex h-screen w-full items-center justify-center bg-cover bg-fixed"
+        className="relative flex min-h-[680px] w-full items-center justify-center bg-cover bg-center md:min-h-[calc(100vh-4.5rem)]"
         style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-havena-ink" />
-        <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-6 text-center">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,rgba(11,14,20,.72),rgba(11,14,20,.30)_55%,rgba(11,14,20,.55))]" />
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-start gap-8 px-6 text-left">
           <div className="space-y-4">
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
-              Find your next unforgettable stay
+            <p className="inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-md">
+              Curated homes · Transparent pricing · Trusted hosts
+            </p>
+            <h1 className="max-w-3xl font-display text-5xl font-semibold leading-[1.02] tracking-tight text-white drop-shadow-lg sm:text-6xl md:text-7xl">
+              Stay somewhere<br />worth remembering.
             </h1>
-            <p className="mx-auto max-w-xl text-balance text-base text-white/90 drop-shadow sm:text-lg">
-              Thoughtfully curated vacation rentals for wherever you're headed next -- boutique hosts, honest pricing, booked in minutes.
+            <p className="max-w-xl text-balance text-base leading-relaxed text-white/90 drop-shadow sm:text-lg">
+              Discover character-filled homes and thoughtful hosts for your next escape.
             </p>
           </div>
 
@@ -164,11 +167,9 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         aria-label="Browse by property type"
-        className="relative bg-cover bg-fixed py-10"
-        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+        className="border-b border-border/70 bg-background py-10"
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/50 to-havena-ink/70" />
-        <div className="container relative z-10">
+        <div className="container">
           <div className="flex gap-6 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible md:grid-cols-9">
             {PROPERTY_TYPES.map((type) => {
               const Icon = PROPERTY_TYPE_ICONS[type.value] ?? HomeIcon;
@@ -178,10 +179,10 @@ export default async function HomePage() {
                   href={`/search?propertyType=${type.value}`}
                   className="group flex shrink-0 flex-col items-center gap-2 text-center"
                 >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors group-hover:bg-havena-gold/40">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md">
                     <Icon className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <span className="text-xs font-medium text-white drop-shadow group-hover:text-havena-gold">
+                  <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
                     {type.label}
                   </span>
                 </Link>
@@ -196,17 +197,15 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="destinations"
-        className="relative bg-cover bg-fixed py-16"
-        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+        className="bg-secondary/55 py-20"
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/50 to-havena-ink/70" />
-        <div className="container relative z-10">
+        <div className="container">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-2xl font-semibold text-white drop-shadow-lg sm:text-3xl">
+              <h2 className="font-display text-3xl font-semibold text-foreground sm:text-4xl">
                 Featured stays
               </h2>
-              <p className="mt-1 text-sm text-white/85 drop-shadow">
+              <p className="mt-2 text-base text-muted-foreground">
                 Highly rated places our guests keep coming back to.
               </p>
             </div>
@@ -224,12 +223,10 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         aria-label="Popular destinations"
-        className="relative bg-cover bg-fixed py-16"
-        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+        className="bg-background py-20"
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-havena-ink/70 via-havena-ink/50 to-havena-ink/70" />
-        <div className="container relative z-10">
-          <h2 className="mb-8 font-display text-2xl font-semibold text-white drop-shadow-lg sm:text-3xl">
+        <div className="container">
+          <h2 className="mb-8 font-display text-3xl font-semibold text-foreground sm:text-4xl">
             Popular destinations
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
@@ -263,10 +260,10 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="cta"
-        className="relative bg-cover bg-fixed py-24 text-white"
+        className="relative overflow-hidden bg-havena-teal py-24 text-white"
         style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-havena-ink" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,184,90,.35),transparent_42%),linear-gradient(135deg,rgba(11,14,20,.10),rgba(11,14,20,.45))]" />
         <div className="container relative z-10">
           <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
             <h2 className="font-display text-3xl font-semibold drop-shadow-lg sm:text-4xl">

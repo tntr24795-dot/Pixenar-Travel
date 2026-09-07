@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Compass, Menu } from "lucide-react";
 
 import { NAV_LINKS, APP_NAME } from "@/constants";
 import { createClient } from "@/lib/supabase/server";
@@ -55,21 +55,24 @@ export async function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/90 shadow-[0_1px_0_rgb(255_255_255/0.5)] backdrop-blur-xl">
+      <div className="container flex h-[4.5rem] items-center justify-between">
         <Link
           href="/"
-          className="font-display text-2xl font-semibold tracking-tight text-foreground"
+          className="group flex items-center gap-2.5 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
         >
-          {APP_NAME}
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform group-hover:-rotate-6">
+            <Compass className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span>{APP_NAME}</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden items-center gap-7 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="relative text-sm font-medium text-muted-foreground transition-colors after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-primary after:transition-all hover:text-foreground hover:after:w-full"
             >
               {link.label}
             </Link>

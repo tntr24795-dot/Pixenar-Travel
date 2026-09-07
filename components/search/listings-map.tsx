@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { MapPinned } from "lucide-react";
 
 import { formatCents, cn } from "@/lib/utils";
-import { loadGoogleMapsScript } from "@/lib/google/load-maps-script";
 
 export interface MapPin {
   id: string;
@@ -16,103 +18,100 @@ export interface MapPin {
 
 export interface ListingsMapProps {
   pins: MapPin[];
-  /** Optional explicit map center; falls back to the first pin, then Austin, TX. */
   centerLat?: number;
   centerLng?: number;
   zoom?: number;
   className?: string;
 }
 
-const FALLBACK_CENTER = { lat: 30.2672, lng: -97.7431 }; // Austin, TX -- Pixenar Travel's Texas launch market
+const FALLBACK_CENTER: [number, number] = [-97.7431, 30.2672];
 
-/**
- * Client-only Google Maps view showing a pin per result (search page) or a
- * single approximate pin (listing detail page). Renders a friendly
- * placeholder instead of crashing if NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is unset.
- *
- * Uses AdvancedMarkerElement (the "marker" library) so each pin can be a
- * plain styled <div> -- same idea as the old Mapbox `new mapboxgl.Marker({
- * element })` pins. AdvancedMarkerElement requires a Map ID; "DEMO_MAP_ID"
- * below is Google's own public placeholder that works out of the box for
- * development. For production, create a real Map ID in Google Cloud
- * Console (Google Maps Platform -> Map Management) and swap it in --
- * that's also where you'd apply custom map styling.
- */
 export function ListingsMap({ pins, centerLat, centerLng, zoom = 11, className }: ListingsMapProps) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const [loadError, setLoadError] = React.useState(false);
+  const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   React.useEffect(() => {
-    if (!apiKey || !containerRef.current) return;
+    if (!token || !containerRef.current) return;
 
-    let cancelled = false;
-    const markers: google.maps.marker.AdvancedMarkerElement[] = [];
+    mapboxgl.accessToken = token;
+    setLoadError(false);
 
-    loadGoogleMapsScript(apiKey)
-      .then(() => {
-        if (cancelled || !containerRef.current) return;
+    const validPins = pins.filter(
+      (pin) => Number.isFinite(pin.latitude) && Number.isFinite(pin.longitude)
+    );
+    const fallbackCenter: [number, number] = validPins.length
+      ? [validPins[0].longitude, validPins[0].latitude]
+      : FALLBACK_CENTER;
 
-        const validPins = pins.filter(
-          (p) => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)
-        );
-        const fallbackCenter =
-          validPins.length > 0
-            ? { lat: validPins[0].latitude, lng: validPins[0].longitude }
-            : FALLBACK_CENTER;
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: "mapbox://styles/mapbox/standard",
+      center:
+        centerLng != null && centerLat != null
+          ? [centerLng, centerLat]
+          : fallbackCenter,
+      zoom,
+      attributionControl: false,
+    });
 
-        const map = new google.maps.Map(containerRef.current, {
-          center: centerLat != null && centerLng != null ? { lat: centerLat, lng: centerLng } : fallbackCenter,
-          zoom,
-          mapId: "DEMO_MAP_ID",
-          disableDefaultUI: true,
-          zoomControl: true,
-        });
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-right");
+    map.on("error", () => setLoadError(true));
 
-        for (const pin of validPins) {
-          const el = document.createElement("div");
-          el.className =
-            "rounded-full bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground shadow-md border border-white cursor-pointer whitespace-nowrap";
-          el.textContent =
-            pin.priceCents != null
-              ? formatCents(pin.priceCents, pin.currency ?? "USD").replace(/\.00$/, "")
-              : "•";
-          el.addEventListener("click", () => {
-            window.location.href = `/listing/${pin.slug}`;
-          });
+    const markers = validPins.map((pin) => {
+      const link = document.createElement("a");
+      link.href = `/listing/${pin.slug}`;
+      link.className = "pixenar-map-pin";
+      link.setAttribute("aria-label", `View ${pin.slug}`);
+      link.textContent =
+        pin.priceCents != null
+          ? formatCents(pin.priceCents, pin.currency ?? "USD").replace(/\.00$/, "")
+          : "View";
 
-          const marker = new google.maps.marker.AdvancedMarkerElement({
-            map,
-            position: { lat: pin.latitude, lng: pin.longitude },
-            content: el,
-          });
-          markers.push(marker);
-        }
-      })
-      .catch((err) => {
-        console.error("[ListingsMap] failed to load Google Maps:", err);
-      });
+      return new mapboxgl.Marker({ element: link, anchor: "bottom" })
+        .setLngLat([pin.longitude, pin.latitude])
+        .addTo(map);
+    });
+
+    if (validPins.length > 1 && centerLat == null && centerLng == null) {
+      const bounds = new mapboxgl.LngLatBounds();
+      validPins.forEach((pin) => bounds.extend([pin.longitude, pin.latitude]));
+      map.fitBounds(bounds, { padding: 56, maxZoom: 13, duration: 0 });
+    }
 
     return () => {
-      cancelled = true;
-      markers.forEach((m) => (m.map = null));
+      markers.forEach((marker) => marker.remove());
+      map.remove();
     };
-    // Re-init the whole map when pins/center change -- simplest correct
-    // behavior for an MVP result set that's at most a page (~20) of pins.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, JSON.stringify(pins), centerLat, centerLng, zoom]);
+  }, [token, JSON.stringify(pins), centerLat, centerLng, zoom]);
 
-  if (!apiKey) {
+  if (!token || loadError) {
     return (
       <div
         className={cn(
-          "flex h-full min-h-[300px] w-full items-center justify-center rounded-xl border border-dashed border-border bg-muted p-6 text-center text-sm text-muted-foreground",
+          "flex h-full min-h-[300px] w-full flex-col items-center justify-center rounded-2xl border border-border bg-secondary/60 p-8 text-center",
           className
         )}
+        role="status"
       >
-        Map unavailable — set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+        <span className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-background text-primary shadow-sm">
+          <MapPinned className="h-6 w-6" aria-hidden="true" />
+        </span>
+        <p className="font-display text-lg font-semibold">Map is taking a short break</p>
+        <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+          You can still browse every stay in the list.
+        </p>
       </div>
     );
   }
 
-  return <div ref={containerRef} className={cn("h-full min-h-[300px] w-full rounded-xl", className)} />;
+  return (
+    <div
+      ref={containerRef}
+      className={cn("h-full min-h-[300px] w-full overflow-hidden rounded-2xl bg-muted", className)}
+      aria-label="Map of available stays"
+    />
+  );
 }
