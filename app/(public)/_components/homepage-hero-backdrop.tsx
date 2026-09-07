@@ -7,17 +7,17 @@ const HERO_IMAGES = [
   {
     src: "/images/home-kitchen.webp",
     alt: "A bright modern kitchen with warm wood floors",
-    position: "center center",
+    cropClassName: "object-center",
   },
   {
     src: "/images/home-living-room.webp",
     alt: "A calm, sunlit living room",
-    position: "center center",
+    cropClassName: "object-center md:object-[center_68%]",
   },
   {
     src: "/images/home-bedroom.webp",
     alt: "A refined bedroom overlooking the city",
-    position: "center center",
+    cropClassName: "object-center",
   },
 ] as const;
 
@@ -43,8 +43,7 @@ export function HomepageHeroBackdrop() {
           fill
           priority={index === 0}
           sizes="100vw"
-          style={{ objectPosition: image.position }}
-          className={`object-cover transition-[opacity,transform] duration-1000 ease-out ${
+          className={`object-cover transition-[opacity,transform] duration-1000 ease-out ${image.cropClassName} ${
             index === activeImage ? "scale-100 opacity-100" : "scale-[1.03] opacity-0"
           }`}
         />

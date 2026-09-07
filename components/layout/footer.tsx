@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 
 import { APP_NAME } from "@/constants";
 
@@ -59,13 +59,15 @@ export function Footer() {
                 <Instagram className="h-5 w-5" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://x.com"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Pixenar Travel on Twitter"
+                aria-label="Pixenar Travel on X"
                 className="text-white/85 hover:text-white"
               >
-                <Twitter className="h-5 w-5" />
+                <span aria-hidden="true" className="font-sans text-xl font-semibold leading-none">
+                  X
+                </span>
               </a>
               <a
                 href="https://facebook.com"
