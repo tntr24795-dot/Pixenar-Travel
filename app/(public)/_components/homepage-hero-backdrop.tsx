@@ -42,6 +42,7 @@ export function HomepageHeroBackdrop() {
           alt=""
           fill
           priority={index === 0}
+          loading="eager"
           quality={95}
           sizes="100vw"
           className={`object-cover transition-[opacity,transform] duration-1000 ease-out ${image.cropClassName} ${
