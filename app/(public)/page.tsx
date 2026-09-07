@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { PROPERTY_TYPES } from "@/constants";
 import { HeroSearchBar } from "./_components/hero-search-bar";
+import { HomepageHeroBackdrop } from "./_components/homepage-hero-backdrop";
 import {
   FeaturedPropertiesReveal,
   type FeaturedProperty,
@@ -146,9 +147,9 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="hero"
-        className="relative flex min-h-[680px] w-full items-center justify-center bg-cover bg-center md:min-h-[calc(100vh-4.5rem)]"
-        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+        className="relative flex min-h-[680px] w-full items-center justify-center bg-havena-teal md:min-h-[calc(100vh-4.5rem)]"
       >
+        <HomepageHeroBackdrop />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,rgba(11,14,20,.72),rgba(11,14,20,.30)_55%,rgba(11,14,20,.55))]" />
         <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-start gap-8 px-6 text-left">
           <div className="space-y-4">
@@ -265,8 +266,8 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section
         id="cta"
-        className="relative overflow-hidden bg-havena-teal py-24 text-white"
-        style={{ backgroundImage: "url(/hero-living-room.jpg)", backgroundPosition: "center 80%" }}
+        className="relative overflow-hidden bg-havena-teal bg-cover bg-center py-24 text-white"
+        style={{ backgroundImage: "url(/images/home-bedroom.webp)" }}
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,184,90,.35),transparent_42%),linear-gradient(135deg,rgba(11,14,20,.10),rgba(11,14,20,.45))]" />
         <div className="container relative z-10">

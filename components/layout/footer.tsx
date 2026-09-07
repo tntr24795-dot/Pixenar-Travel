@@ -32,9 +32,9 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-havena-ink text-white">
-      <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-havena-teal/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+    <footer className="relative overflow-hidden bg-[#15566A] text-white">
+      <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-havena-gold/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
       <div className="container relative z-10 py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">

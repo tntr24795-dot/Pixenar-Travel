@@ -130,11 +130,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div>
       <div className="relative h-[22vh] min-h-[190px] w-full overflow-hidden bg-havena-ink">
         <Image
-          src="/hero-banner-living-room.jpg"
-          alt="A cozy living room in one of our vacation rentals"
+          src="/images/search-hero.webp"
+          alt="A sunlit coastal villa terrace overlooking the sea"
           fill
           priority
-          className="object-cover opacity-70"
+          sizes="100vw"
+          className="object-cover object-center opacity-80"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-havena-ink/75 to-transparent" />
         <div className="container relative flex h-full items-center">
