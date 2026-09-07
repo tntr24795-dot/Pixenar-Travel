@@ -19,9 +19,32 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.pixenar-travel.com"),
   title: "Pixenar Travel — Vacation Rental Marketplace",
   description:
     "Pixenar Travel is a boutique vacation-rental marketplace — discover thoughtfully curated stays and host your own place with confidence.",
+  applicationName: "Pixenar Travel",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Pixenar Travel",
+    title: "Pixenar Travel — Vacation Rental Marketplace",
+    description:
+      "Discover thoughtfully curated stays and host your own place with confidence.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary",
+    title: "Pixenar Travel — Vacation Rental Marketplace",
+    description:
+      "Discover thoughtfully curated stays and host your own place with confidence.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // This site only has a light design -- no dark theme is actually implemented
