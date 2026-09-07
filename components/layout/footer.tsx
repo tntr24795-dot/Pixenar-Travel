@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Facebook, Instagram } from "lucide-react";
 
 import { APP_NAME } from "@/constants";
+
+const ORIGINAL_BEDROOM_IMAGE =
+  "https://raw.githubusercontent.com/tntr24795-dot/Pixenar-Travel/dd5465936a5da8c8ece4bd733ba173791abf3058/public/images/home-bedroom.webp";
 
 const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
@@ -31,55 +37,52 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+  const isHomepage = pathname === "/";
+
   return (
-    <footer className="relative overflow-hidden bg-[#3F7F86] text-white">
-      <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-havena-gold/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
+    <footer
+      className={`relative overflow-hidden text-white ${
+        isHomepage ? "bg-cover bg-center bg-no-repeat" : "bg-[#3F7F86]"
+      }`}
+      style={
+        isHomepage
+          ? {
+              backgroundImage: `url(${ORIGINAL_BEDROOM_IMAGE})`,
+              backgroundPosition: "center bottom",
+            }
+          : undefined
+      }
+    >
+      {isHomepage ? (
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(11,14,20,.76),rgba(11,14,20,.56)_48%,rgba(11,14,20,.48))]" />
+      ) : (
+        <>
+          <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-havena-gold/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
+        </>
+      )}
+
       <div className="container relative z-10 py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
-            <Link
-              href="/"
-              className="font-display text-2xl font-semibold text-white drop-shadow-lg"
-            >
+            <Link href="/" className="font-display text-2xl font-semibold text-white drop-shadow-lg">
               {APP_NAME}
             </Link>
-            <p className="mt-3 max-w-xs text-sm text-white/85 drop-shadow">
+            <p className="mt-3 max-w-xs text-sm text-white/90 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               Thoughtfully curated vacation rentals for travelers who want a
               stay that feels like home — and better.
             </p>
             <div className="mt-4 flex items-center gap-3">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Pixenar Travel on Instagram"
-                className="text-white/85 hover:text-white"
-              >
+              <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Pixenar Travel on Instagram" className="text-white/90 hover:text-white">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a
-                href="https://x.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Pixenar Travel on X"
-                className="text-white/85 hover:text-white"
-              >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5 fill-current"
-                >
+              <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="Pixenar Travel on X" className="text-white/90 hover:text-white">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-current">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Pixenar Travel on Facebook"
-                className="text-white/85 hover:text-white"
-              >
+              <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Pixenar Travel on Facebook" className="text-white/90 hover:text-white">
                 <Facebook className="h-5 w-5" />
               </a>
             </div>
@@ -87,16 +90,13 @@ export function Footer() {
 
           {FOOTER_COLUMNS.map((column) => (
             <div key={column.title}>
-              <h3 className="font-display text-sm font-semibold text-white drop-shadow">
+              <h3 className="font-display text-sm font-semibold text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
                 {column.title}
               </h3>
               <ul className="mt-3 space-y-2">
                 {column.links.map((link) => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/85 hover:text-white"
-                    >
+                    <Link href={link.href} className="text-sm text-white/90 hover:text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
                       {link.label}
                     </Link>
                   </li>
@@ -106,9 +106,8 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-10 border-t border-white/20 pt-6 text-xs text-white/70">
-          &copy; {new Date().getFullYear()} {APP_NAME}, Inc. All rights
-          reserved.
+        <div className="mt-10 border-t border-white/30 pt-6 text-xs text-white/80 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+          &copy; {new Date().getFullYear()} {APP_NAME}, Inc. All rights reserved.
         </div>
       </div>
     </footer>
