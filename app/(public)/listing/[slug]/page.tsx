@@ -12,6 +12,8 @@ import { Gallery } from "@/components/listings/gallery";
 import { ReviewsList, type ReviewItem } from "@/components/listings/reviews-list";
 import { ListingsMap } from "@/components/search/listings-map";
 import { PricingCard } from "@/components/booking/pricing-card";
+import { SaveButton } from "@/components/wishlist/save-button";
+import { ShareButton } from "@/components/listings/share-button";
 
 export const dynamic = "force-dynamic";
 
@@ -106,21 +108,27 @@ export default async function ListingPage({ params }: ListingPageProps) {
       </div>
 
       <div className="container max-w-6xl py-8">
-        <header className="mb-6 space-y-1">
-          <h1 className="font-display text-3xl font-semibold">{listing.title}</h1>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" /> {location || "Location shared after booking"}
-            </span>
-            <span>·</span>
-            <span>{roomTypeLabel}</span>
-            <span>·</span>
-            <span>{propertyTypeLabel}</span>
-            {listing.instant_book && (
-              <Badge variant="outline" className="ml-1">
-                Instant Book
-              </Badge>
-            )}
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="font-display text-3xl font-semibold">{listing.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" /> {location || "Location shared after booking"}
+              </span>
+              <span>·</span>
+              <span>{roomTypeLabel}</span>
+              <span>·</span>
+              <span>{propertyTypeLabel}</span>
+              {listing.instant_book && (
+                <Badge variant="outline" className="ml-1">
+                  Instant Book
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <ShareButton title={listing.title} />
+            <SaveButton listingId={listing.id} />
           </div>
         </header>
 
