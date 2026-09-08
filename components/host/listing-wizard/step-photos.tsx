@@ -6,35 +6,25 @@ import { GripVertical, ImagePlus, Loader2, Star, Trash2 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import type { ListingWizardData, WizardImage } from "@/components/host/listing-wizard/types";
 
 const LISTING_IMAGES_BUCKET = "listing-images";
 const MIN_IMAGES = 5;
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/heic"]);
 /** Photos larger than this on their longest edge get downscaled before upload. */
 const MAX_DIMENSION_PX = 2000;
 
 interface StepPhotosProps {
   data: ListingWizardData;
   update: (patch: Partial<ListingWizardData>) => void;
-  /**
-   * Stable id used as the storage folder for this in-progress listing.
-   * Generated once when the wizard opens and reused as the listing's `id`
-   * on final submit, so photos can be uploaded before the `listings` row
-   * exists.
-   */
+  /** Stable id used as the storage folder for this in-progress listing. */
   draftId: string;
 }
 
-/**
- * Client-side downscale via <canvas> so large phone photos aren't uploaded
- * at full resolution. This is a best-effort resize, not full compression —
- * TODO: consider re-encoding to WebP at a target quality for smaller
- * uploads once a client-side image library is added to package.json.
- */
 async function resizeImageIfNeeded(file: File): Promise<Blob> {
-  if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
+  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.type === "image/heic") {
     return file;
   }
 
@@ -43,6 +33,7 @@ async function resizeImageIfNeeded(file: File): Promise<Blob> {
 
   const largestEdge = Math.max(bitmap.width, bitmap.height);
   if (largestEdge <= MAX_DIMENSION_PX) {
+    bitmap.close();
     return file;
   }
 
@@ -51,8 +42,12 @@ async function resizeImageIfNeeded(file: File): Promise<Blob> {
   canvas.width = Math.round(bitmap.width * scale);
   canvas.height = Math.round(bitmap.height * scale);
   const ctx = canvas.getContext("2d");
-  if (!ctx) return file;
+  if (!ctx) {
+    bitmap.close();
+    return file;
+  }
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/jpeg", 0.85)
@@ -81,21 +76,34 @@ export function StepPhotos({ data, update, draftId }: StepPhotosProps) {
       let sortOrder = data.images.length;
 
       for (const file of Array.from(files)) {
+        if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+          throw new Error("Only JPEG, PNG, WebP, and HEIC photos are allowed.");
+        }
+        if (file.size <= 0 || file.size > MAX_FILE_BYTES) {
+          throw new Error("Each photo must be larger than 0 bytes and no more than 10 MB.");
+        }
+
         const blob = await resizeImageIfNeeded(file);
-        const ext = file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${draftId}/${crypto.randomUUID()}.${ext}`;
+        const uploadType = blob === file ? file.type : "image/jpeg";
+        const extension =
+          uploadType === "image/png"
+            ? "png"
+            : uploadType === "image/webp"
+              ? "webp"
+              : uploadType === "image/heic"
+                ? "heic"
+                : "jpg";
+        const path = `${user.id}/${draftId}/${crypto.randomUUID()}.${extension}`;
 
         const { error: uploadError } = await supabase.storage
           .from(LISTING_IMAGES_BUCKET)
           .upload(path, blob, {
-            contentType: file.type || "image/jpeg",
+            contentType: uploadType,
             cacheControl: "3600",
             upsert: false,
           });
 
-        if (uploadError) {
-          throw uploadError;
-        }
+        if (uploadError) throw uploadError;
 
         const { data: publicUrlData } = supabase.storage
           .from(LISTING_IMAGES_BUCKET)
@@ -118,7 +126,7 @@ export function StepPhotos({ data, update, draftId }: StepPhotosProps) {
         description:
           error instanceof Error
             ? error.message
-            : "Couldn't upload one or more photos. Make sure the 'listing-images' storage bucket exists.",
+            : "Couldn't upload one or more photos.",
         variant: "destructive",
       });
     } finally {
@@ -129,7 +137,6 @@ export function StepPhotos({ data, update, draftId }: StepPhotosProps) {
 
   function removeImage(clientId: string) {
     const remaining = data.images.filter((img) => img.clientId !== clientId);
-    // Best-effort delete from storage; ignore failures (not user-facing).
     const removed = data.images.find((img) => img.clientId === clientId);
     if (removed) {
       createClient().storage.from(LISTING_IMAGES_BUCKET).remove([removed.storagePath]).catch(() => {});
@@ -166,14 +173,15 @@ export function StepPhotos({ data, update, draftId }: StepPhotosProps) {
       <div>
         <h2 className="font-display text-xl font-semibold">Add photos of your place</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload at least {MIN_IMAGES} photos. Drag to reorder; the star marks your cover photo.
+          Upload at least {MIN_IMAGES} photos. JPEG, PNG, WebP, or HEIC; maximum 10 MB each.
+          Drag to reorder; the star marks your cover photo.
         </p>
       </div>
 
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/heic"
         multiple
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
@@ -185,11 +193,7 @@ export function StepPhotos({ data, update, draftId }: StepPhotosProps) {
         onClick={() => inputRef.current?.click()}
         className="flex w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-10 text-sm text-muted-foreground transition-colors hover:border-primary/50 disabled:opacity-60"
       >
-        {uploading ? (
-          <Loader2 className="h-6 w-6 animate-spin" />
-        ) : (
-          <ImagePlus className="h-6 w-6" />
-        )}
+        {uploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <ImagePlus className="h-6 w-6" />}
         {uploading ? "Uploading..." : "Click to choose photos"}
       </button>
 
