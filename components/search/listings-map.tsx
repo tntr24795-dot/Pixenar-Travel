@@ -46,13 +46,14 @@ export function ListingsMap({ pins, centerLat, centerLng, zoom = 11, className }
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/standard",
+      style: "mapbox://styles/mapbox/streets-v12",
       center:
         centerLng != null && centerLat != null
           ? [centerLng, centerLat]
           : fallbackCenter,
       zoom,
       attributionControl: false,
+      cooperativeGestures: true,
     });
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
@@ -77,7 +78,7 @@ export function ListingsMap({ pins, centerLat, centerLng, zoom = 11, className }
     if (validPins.length > 1 && centerLat == null && centerLng == null) {
       const bounds = new mapboxgl.LngLatBounds();
       validPins.forEach((pin) => bounds.extend([pin.longitude, pin.latitude]));
-      map.fitBounds(bounds, { padding: 56, maxZoom: 13, duration: 0 });
+      map.fitBounds(bounds, { padding: 72, maxZoom: 13, duration: 0 });
     }
 
     return () => {

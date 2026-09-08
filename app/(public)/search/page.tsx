@@ -1,6 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
-import { MapIcon } from "lucide-react";
+import { ListFilter, MapIcon } from "lucide-react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
@@ -13,258 +12,72 @@ import { Filters } from "@/components/search/filters";
 import { ListingsMap, type MapPin } from "@/components/search/listings-map";
 import { ListingCard } from "@/components/listings/listing-card";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SortSelect } from "./sort-select";
 
 export const dynamic = "force-dynamic";
 
 type SearchParamValue = string | string[] | undefined;
+interface SearchPageProps { searchParams: Record<string, SearchParamValue>; }
 
-interface SearchPageProps {
-  searchParams: Record<string, SearchParamValue>;
-}
+const SIMPLE_KEYS = ["location", "checkIn", "checkOut", "adults", "children", "infants", "pets", "minPrice", "maxPrice", "propertyType", "roomType", "bedrooms", "beds", "bathrooms", "instantBook", "sort"] as const;
 
-const SIMPLE_KEYS = [
-  "location",
-  "checkIn",
-  "checkOut",
-  "adults",
-  "children",
-  "infants",
-  "pets",
-  "minPrice",
-  "maxPrice",
-  "propertyType",
-  "roomType",
-  "bedrooms",
-  "beds",
-  "bathrooms",
-  "instantBook",
-  "sort",
-] as const;
-
-function toSingle(value: SearchParamValue): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
+function toSingle(value: SearchParamValue): string | undefined { return Array.isArray(value) ? value[0] : value; }
 function parseSearchParams(searchParams: SearchPageProps["searchParams"]): Record<string, unknown> {
   const raw: Record<string, unknown> = {};
-  for (const key of SIMPLE_KEYS) {
-    const value = toSingle(searchParams[key]);
-    if (value !== undefined && value !== "") raw[key] = value;
-  }
+  for (const key of SIMPLE_KEYS) { const value = toSingle(searchParams[key]); if (value !== undefined && value !== "") raw[key] = value; }
   const amenitiesRaw = searchParams.amenities;
   const amenities = Array.isArray(amenitiesRaw) ? amenitiesRaw : amenitiesRaw ? [amenitiesRaw] : [];
   if (amenities.length > 0) raw.amenities = amenities;
   return raw;
 }
-
-/** Builds a `/search?...` href preserving every current param except `page`. */
 function pageHref(searchParams: SearchPageProps["searchParams"], targetPage: number): string {
   const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(searchParams)) {
-    if (key === "page" || value == null) continue;
-    if (Array.isArray(value)) value.forEach((v) => params.append(key, v));
-    else params.set(key, value);
-  }
-  params.set("page", String(targetPage));
-  return `/search?${params.toString()}`;
+  for (const [key, value] of Object.entries(searchParams)) { if (key === "page" || value == null) continue; if (Array.isArray(value)) value.forEach((v) => params.append(key, v)); else params.set(key, value); }
+  params.set("page", String(targetPage)); return `/search?${params.toString()}`;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const parsed = searchQuerySchema.safeParse(parseSearchParams(searchParams));
   const query = parsed.success ? parsed.data : searchQuerySchema.parse({});
-
   const page = Number(toSingle(searchParams.page) ?? 1) || 1;
   const pageSize = 20;
-
-  // NOTE: cast works around a type-inference regression between the
-  // installed @supabase/ssr and @supabase/supabase-js versions in this
-  // environment (see app/api/listings/route.ts for the full explanation).
   const supabase = createClient() as unknown as SupabaseClient<Database>;
   let searchUnavailable = false;
-  const result = await searchListings(supabase, { ...query, page, pageSize }).catch((error) => {
-    searchUnavailable = true;
-    console.error("[search page] failed to load listings:", error);
-    return {
-      listings: [],
-      page,
-      pageSize,
-      total: 0,
-      totalPages: 1,
-    };
-  });
-
-  // Center the map on the destination the traveler chose, even when that
-  // destination does not have a published listing yet. Mapbox caches this
-  // lookup server-side, so repeat searches do not add unnecessary latency.
-  const selectedDestination = query.location
-    ? await geocodeAddress(query.location).catch((error) => {
-        console.error("[search page] failed to locate destination:", error);
-        return null;
-      })
-    : null;
-
-  const pins: MapPin[] = result.listings.flatMap((listing) =>
-    listing.latitude != null && listing.longitude != null
-      ? [
-          {
-            id: listing.id,
-            slug: listing.slug,
-            latitude: listing.latitude,
-            longitude: listing.longitude,
-            priceCents: listing.nightlyPriceCents,
-            currency: listing.currency,
-          },
-        ]
-      : []
-  );
+  const result = await searchListings(supabase, { ...query, page, pageSize }).catch((error) => { searchUnavailable = true; console.error("[search page] failed to load listings:", error); return { listings: [], page, pageSize, total: 0, totalPages: 1 }; });
+  const selectedDestination = query.location ? await geocodeAddress(query.location).catch((error) => { console.error("[search page] failed to locate destination:", error); return null; }) : null;
+  const pins: MapPin[] = result.listings.flatMap((listing) => listing.latitude != null && listing.longitude != null ? [{ id: listing.id, slug: listing.slug, latitude: listing.latitude, longitude: listing.longitude, priceCents: listing.nightlyPriceCents, currency: listing.currency }] : []);
 
   return (
-    <div>
-      <div className="relative h-[22vh] min-h-[190px] w-full overflow-hidden bg-havena-ink">
-        <Image
-          src="/images/search-hero.webp"
-          alt="A sunlit coastal villa terrace overlooking the sea"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-80"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-havena-ink/75 to-transparent" />
-        <div className="container relative flex h-full items-center">
-          <div className="max-w-xl text-white">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-havena-gold">Find your place</p>
-            <h1 className="mt-2 font-display text-4xl font-semibold sm:text-5xl">Stays made for the way you travel</h1>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-[4.5rem] z-30 border-b border-border/80 bg-background/95 shadow-sm backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-[1180px] px-4 py-4 sm:px-6"><SearchBar /></div>
       </div>
 
-      <div className="border-b border-border bg-background/95 py-4">
-        <div className="container">
-          <SearchBar />
-        </div>
-      </div>
-
-      <div className="container py-6">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            {result.total} stay{result.total === 1 ? "" : "s"} found
-          </p>
+      <div className="w-full px-4 py-5 sm:px-5 lg:px-6 xl:px-7">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div><p className="font-display text-xl font-semibold text-foreground">{query.location ? `Stays in ${query.location}` : "Explore stays"}</p><p className="mt-0.5 text-sm text-muted-foreground">{result.total} stay{result.total === 1 ? "" : "s"} found</p></div>
           <div className="flex items-center gap-2">
+            <Sheet><SheetTrigger asChild><Button variant="outline" size="sm" className="gap-2 rounded-full"><ListFilter className="h-4 w-4" />Filters</Button></SheetTrigger><SheetContent side="left" className="w-[92vw] overflow-y-auto p-0 sm:max-w-md"><SheetHeader className="border-b border-border p-5 text-left"><SheetTitle>Filters</SheetTitle></SheetHeader><div className="p-5"><Filters className="border-0 p-0 shadow-none" /></div></SheetContent></Sheet>
             <SortSelect />
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 lg:hidden">
-                  <MapIcon className="h-4 w-4" />
-                  Show map
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[100dvh] w-full max-w-none p-0">
-                <SheetHeader className="p-4">
-                  <SheetTitle>Map</SheetTitle>
-                </SheetHeader>
-                <ListingsMap
-                  pins={pins}
-                  centerLat={selectedDestination?.latitude}
-                  centerLng={selectedDestination?.longitude}
-                  zoom={selectedDestination ? 10 : 11}
-                  className="h-[calc(100dvh-64px)] w-full rounded-none"
-                />
-              </SheetContent>
-            </Sheet>
+            <Sheet><SheetTrigger asChild><Button variant="outline" size="sm" className="gap-2 rounded-full lg:hidden"><MapIcon className="h-4 w-4" />Map</Button></SheetTrigger><SheetContent side="bottom" className="h-[100dvh] w-full max-w-none p-0"><SheetHeader className="border-b border-border p-4"><SheetTitle>Map</SheetTitle></SheetHeader><ListingsMap pins={pins} centerLat={selectedDestination?.latitude} centerLng={selectedDestination?.longitude} zoom={selectedDestination ? 10 : 11} className="h-[calc(100dvh-65px)] w-full rounded-none border-0" /></SheetContent></Sheet>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr_1fr]">
-          <aside>
-            <Filters />
-          </aside>
-
-          <section>
-            {result.listings.length === 0 ? (
-              <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm">
-                <span className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-secondary text-primary">
-                  <MapIcon className="h-6 w-6" aria-hidden="true" />
-                </span>
-                <p className="font-display text-xl font-semibold">
-                  {searchUnavailable ? "Search is temporarily unavailable" : "No stays match your search"}
-                </p>
-                <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-                  {searchUnavailable
-                    ? "We couldn't load stays just now. Please refresh the page in a moment."
-                    : "Try widening your dates, price range, or removing a filter."}
-                </p>
-                <Button asChild variant="outline" className="mt-6">
-                  <Link href="/search">{searchUnavailable ? "Try again" : "Clear all filters"}</Link>
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  {result.listings.map((listing) => (
-                    <ListingCard
-                      key={listing.id}
-                      slug={listing.slug}
-                      title={listing.title}
-                      city={listing.city}
-                      state={listing.state}
-                      nightlyPriceCents={listing.nightlyPriceCents}
-                      currency={listing.currency}
-                      averageRating={listing.averageRating}
-                      reviewCount={listing.reviewCount}
-                      instantBook={listing.instantBook}
-                      coverImage={listing.coverImage}
-                    />
-                  ))}
-                </div>
-
-                {result.totalPages > 1 && (
-                  <div className="mt-8 flex items-center justify-center gap-2">
-                    <Link
-                      href={pageHref(searchParams, Math.max(1, page - 1))}
-                      className={page <= 1 ? "pointer-events-none opacity-40" : ""}
-                      aria-disabled={page <= 1}
-                    >
-                      <Button variant="outline" size="sm">
-                        Previous
-                      </Button>
-                    </Link>
-                    <span className="text-sm text-muted-foreground">
-                      Page {result.page} of {result.totalPages}
-                    </span>
-                    <Link
-                      href={pageHref(searchParams, Math.min(result.totalPages, page + 1))}
-                      className={page >= result.totalPages ? "pointer-events-none opacity-40" : ""}
-                      aria-disabled={page >= result.totalPages}
-                    >
-                      <Button variant="outline" size="sm">
-                        Next
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </>
-            )}
-          </section>
-
-          <aside className="hidden lg:block">
-            <div className="sticky top-24 h-[calc(100vh-8rem)]">
-              <ListingsMap
-                pins={pins}
-                centerLat={selectedDestination?.latitude}
-                centerLng={selectedDestination?.longitude}
-                zoom={selectedDestination ? 10 : 11}
-                className="h-full w-full rounded-2xl"
-              />
+        <div className="lg:grid lg:grid-cols-2 lg:gap-6 xl:gap-7">
+          <aside className="hidden lg:block min-w-0">
+            <div className="sticky top-[9.4rem] h-[calc(100vh-10.6rem)] min-h-[640px] w-full overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
+              <ListingsMap pins={pins} centerLat={selectedDestination?.latitude} centerLng={selectedDestination?.longitude} zoom={selectedDestination ? 10 : 11} className="h-full w-full rounded-3xl border-0" />
             </div>
           </aside>
+
+          <section className="min-w-0 pb-10">
+            {result.listings.length === 0 ? (
+              <div className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-sm"><span className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-secondary text-primary"><MapIcon className="h-6 w-6" aria-hidden="true" /></span><p className="font-display text-xl font-semibold">{searchUnavailable ? "Search is temporarily unavailable" : "No stays match your search"}</p><p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{searchUnavailable ? "We couldn't load stays just now. Please refresh the page in a moment." : "Try widening your dates, price range, or removing a filter."}</p><Button asChild variant="outline" className="mt-6 rounded-full"><Link href="/search">{searchUnavailable ? "Try again" : "Clear all filters"}</Link></Button></div>
+            ) : (
+              <><div className="grid grid-cols-1 gap-x-4 gap-y-7 sm:grid-cols-2">{result.listings.map((listing) => <ListingCard key={listing.id} slug={listing.slug} title={listing.title} city={listing.city} state={listing.state} nightlyPriceCents={listing.nightlyPriceCents} currency={listing.currency} averageRating={listing.averageRating} reviewCount={listing.reviewCount} instantBook={listing.instantBook} coverImage={listing.coverImage} />)}</div>{result.totalPages > 1 && <div className="mt-10 flex flex-wrap items-center justify-center gap-3"><Link href={pageHref(searchParams, Math.max(1, page - 1))} className={page <= 1 ? "pointer-events-none opacity-40" : ""} aria-disabled={page <= 1}><Button variant="outline" size="sm" className="rounded-full">Previous</Button></Link><span className="text-sm text-muted-foreground">Page {result.page} of {result.totalPages}</span><Link href={pageHref(searchParams, Math.min(result.totalPages, page + 1))} className={page >= result.totalPages ? "pointer-events-none opacity-40" : ""} aria-disabled={page >= result.totalPages}><Button variant="outline" size="sm" className="rounded-full">Next</Button></Link></div>}</>
+            )}
+          </section>
         </div>
       </div>
     </div>

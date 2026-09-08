@@ -1,20 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
+import { consumeRateLimit, rateLimitHeaders } from "@/lib/security/rate-limit";
 import { BookingServiceError, createBookingCheckout } from "@/services/booking.service";
 
-/**
- * POST /api/bookings/[id]/checkout
- *
- * Creates (or reuses) the Stripe PaymentIntent for an existing booking hold
- * and returns its client secret for Stripe Elements. All authorization,
- * status/expiry checks, host-readiness checks and the actual PaymentIntent
- * creation live in services/booking.service.ts#createBookingCheckout — this
- * route only authenticates the caller and forwards their id.
- *
- * This is the same operation as POST /api/stripe/create-payment-intent —
- * see that route's comment for why there isn't a second implementation.
- */
 export async function POST(
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -25,6 +14,19 @@ export async function POST(
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const rate = await consumeRateLimit(`booking-checkout:${user.id}`, 60, 10);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "rate_limited" },
+        { status: 429, headers: rateLimitHeaders(rate) }
+      );
+    }
+  } catch (err) {
+    console.error("booking checkout rate limit failed", err);
+    return NextResponse.json({ error: "temporarily_unavailable" }, { status: 503 });
   }
 
   try {

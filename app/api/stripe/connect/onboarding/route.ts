@@ -2,34 +2,30 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
+import { consumeRateLimit, rateLimitHeaders } from "@/lib/security/rate-limit";
 import { createConnectOnboardingLink } from "@/lib/stripe/server";
 import type { Database } from "@/types/database";
 
-/**
- * POST /api/stripe/connect/onboarding
- *
- * Gets-or-creates the caller's host_profiles row, then returns a Stripe
- * Connect Express onboarding link for them to complete.
- *
- * Uses the session-bound client for both the insert and the update: the
- * `host_profiles_insert_own` / `host_profiles_update_own_or_admin` RLS
- * policies already allow a user to write their own row, so there's no need
- * to reach for the admin client here.
- */
 export async function POST(request: NextRequest) {
-  // Cast: the installed @supabase/ssr version's `createServerClient()` return
-  // type doesn't line up 1:1 with the newer @supabase/supabase-js
-  // `SupabaseClient` generic signature in this environment (a pre-existing,
-  // repo-wide dependency version mismatch — see lib/supabase/server.ts),
-  // which otherwise collapses every `.from(...)` row type to `never`. This
-  // is a type-only workaround; the runtime client (and the RLS it enforces)
-  // is unaffected.
   const supabase = createClient() as unknown as SupabaseClient<Database>;
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user || !user.email) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const rate = await consumeRateLimit(`stripe-onboarding:${user.id}`, 300, 5);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "rate_limited" },
+        { status: 429, headers: rateLimitHeaders(rate) }
+      );
+    }
+  } catch (err) {
+    console.error("Stripe onboarding rate limit failed", err);
+    return NextResponse.json({ error: "temporarily_unavailable" }, { status: 503 });
   }
 
   let hostProfile = (

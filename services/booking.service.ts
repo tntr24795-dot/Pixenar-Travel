@@ -28,12 +28,6 @@ import { BOOKING_HOLD_MINUTES } from "@/constants";
 import { generateBookingNumber } from "@/lib/utils";
 import type { Tables, TablesInsert } from "@/types/database";
 
-/**
- * Thrown by every function in this file for any expected failure mode
- * (not-found, forbidden, conflict, validation, upstream Stripe failure...).
- * Route handlers catch this and map `.status` straight onto the HTTP
- * response, and `.code` onto a machine-readable error code in the body.
- */
 export class BookingServiceError extends Error {
   status: number;
   code?: string;
@@ -45,10 +39,6 @@ export class BookingServiceError extends Error {
     this.code = code;
   }
 }
-
-// ===========================================================================
-// createBookingHold
-// ===========================================================================
 
 export interface CreateBookingHoldParams {
   listingId: string;
@@ -87,8 +77,6 @@ export async function createBookingHold(
     );
   }
 
-  // bookings.host_id references profiles(id) (the host's user id), while
-  // listings.host_id references host_profiles(id) — translate between them.
   const { data: hostProfile, error: hostProfileError } = await admin
     .from("host_profiles")
     .select("user_id")
@@ -98,16 +86,6 @@ export async function createBookingHold(
     throw new BookingServiceError("Host profile not found.", 404, "host_profile_not_found");
   }
 
-  // ---------------------------------------------------------------------
-  // Fast UX pre-check ONLY. See checkAvailability()'s own doc comment: this
-  // lets us return a friendly "these dates aren't available" error in the
-  // common case, without even attempting a write. It is explicitly NOT the
-  // guarantee against double-booking — two concurrent requests for the same
-  // listing/dates can both pass this check at the same instant. The actual,
-  // authoritative defense is the `no_overlapping_bookings` EXCLUDE
-  // constraint on the `bookings` table itself (see the insert below and
-  // supabase/migrations/0001_schema.sql).
-  // ---------------------------------------------------------------------
   const availabilityCheck = await checkAvailability(
     admin,
     params.listingId,
@@ -142,8 +120,6 @@ export async function createBookingHold(
     pets: params.pets,
   };
 
-  // Never trust a price from the caller — the quote is always recomputed
-  // here from data freshly loaded from the database.
   const quote = calculateBookingQuote(pricingInput, params.checkIn, params.checkOut, guests, {
     customPricesByDate: availabilityCheck.customPricesByDate,
   });
@@ -184,18 +160,6 @@ export async function createBookingHold(
     hold_expires_at: holdExpiresAt,
   };
 
-  // ---------------------------------------------------------------------
-  // THE REAL double-booking guard. `bookings` carries a Postgres
-  // `EXCLUDE USING gist (listing_id WITH =, stay WITH &&) WHERE (status IN
-  // ('pending_payment','confirmed'))` constraint named `no_overlapping_bookings`
-  // (see supabase/migrations/0001_schema.sql). If another request wins a
-  // race and inserts an overlapping stay for this listing first, Postgres
-  // itself rejects THIS insert with SQLSTATE 23P01 ("exclusion_violation").
-  // We catch that specific code below and turn it into a clean, expected
-  // error instead of a raw DB error leaking to the guest. The
-  // `checkAvailability()` call above is only a nicety to avoid the round
-  // trip in the common case — this insert is the actual source of truth.
-  // ---------------------------------------------------------------------
   const { data: booking, error: insertError } = await admin
     .from("bookings")
     .insert(bookingInsert)
@@ -220,7 +184,6 @@ export async function createBookingHold(
     throw new BookingServiceError("Failed to create booking.", 500, "booking_insert_failed");
   }
 
-  // Never store just a total — one row per quote line item, always.
   const priceItemsInsert: TablesInsert<"booking_price_items">[] = quote.items.map((item) => ({
     booking_id: booking.id,
     item_type: item.itemType,
@@ -236,8 +199,6 @@ export async function createBookingHold(
     .select();
 
   if (priceItemsError) {
-    // Don't leave a booking behind with no itemized breakdown — roll it
-    // back rather than silently degrading to "just a total".
     await admin.from("bookings").delete().eq("id", booking.id);
     throw new BookingServiceError(
       "Failed to record the price breakdown for this booking.",
@@ -249,26 +210,11 @@ export async function createBookingHold(
   return { booking, priceItems: priceItems ?? [] };
 }
 
-// ===========================================================================
-// expireStaleHolds
-// ===========================================================================
-
 export interface ExpireStaleHoldsResult {
   expiredCount: number;
   expiredBookingIds: string[];
 }
 
-/**
- * Flips any `pending_payment` booking whose hold has lapsed to `expired`,
- * freeing its dates (the `no_overlapping_bookings` constraint only applies
- * to `pending_payment` / `confirmed` rows, so an `expired` row no longer
- * blocks new bookings for the same dates).
- *
- * This environment has no persistent background worker, so this must be
- * invoked by an external scheduler — see app/api/cron/expire-holds/route.ts,
- * which should be hit by Vercel Cron (or any other scheduler) every 1-5
- * minutes given BOOKING_HOLD_MINUTES = 15.
- */
 export async function expireStaleHolds(): Promise<ExpireStaleHoldsResult> {
   const admin = createAdminClient();
   const nowIso = new Date().toISOString();
@@ -292,10 +238,6 @@ export async function expireStaleHolds(): Promise<ExpireStaleHoldsResult> {
   return { expiredCount: expiredBookingIds.length, expiredBookingIds };
 }
 
-// ===========================================================================
-// confirmBooking — called ONLY from the Stripe webhook handler.
-// ===========================================================================
-
 export async function confirmBooking(
   bookingId: string,
   stripePaymentIntentId: string,
@@ -312,16 +254,7 @@ export async function confirmBooking(
       stripe_payment_intent_id: stripePaymentIntentId,
       stripe_charge_id: stripeChargeId ?? null,
     })
-    // Guard: only a still-held booking may transition to confirmed. If the
-    // hold already expired (or the booking was cancelled) between the
-    // PaymentIntent being created and this webhook firing, forcing it back
-    // to 'confirmed' here could resurrect a booking whose dates may have
-    // already been re-booked by someone else once this row turned
-    // 'expired' — i.e. it would silently create a second overlapping
-    // confirmed booking, exactly the thing `no_overlapping_bookings` exists
-    // to prevent. Refuse instead and surface it for manual reconciliation
-    // (the guest has already been charged and needs a refund or a manual
-    // rebooking, not a silently-conflicting row).
+    .eq("id", bookingId)
     .eq("status", "pending_payment")
     .select()
     .single();
@@ -338,12 +271,6 @@ export async function confirmBooking(
 
   return data;
 }
-
-// ===========================================================================
-// createBookingCheckout — shared by both
-// app/api/bookings/[id]/checkout/route.ts and
-// app/api/stripe/create-payment-intent/route.ts (same operation, one impl).
-// ===========================================================================
 
 export interface CreateBookingCheckoutParams {
   bookingId: string;
@@ -413,9 +340,6 @@ export async function createBookingCheckout(
 
   const stripe = getStripe();
 
-  // If a PaymentIntent already exists for this booking (e.g. the guest's
-  // first attempt failed and they're retrying within their hold window),
-  // reuse it instead of creating a duplicate.
   if (booking.stripe_payment_intent_id) {
     try {
       const existing = await stripe.paymentIntents.retrieve(booking.stripe_payment_intent_id);
@@ -432,9 +356,6 @@ export async function createBookingCheckout(
     }
   }
 
-  // IMPORTANT: totalCents/hostPayoutCents/currency come from the booking
-  // row itself — already server-computed at hold-creation time. Never
-  // recompute or accept new numbers from this route's caller.
   const paymentIntent = await createBookingPaymentIntent({
     totalCents: booking.total_cents,
     currency: booking.currency,
@@ -466,10 +387,6 @@ export async function createBookingCheckout(
 
   return { clientSecret: paymentIntent.client_secret };
 }
-
-// ===========================================================================
-// cancelBooking
-// ===========================================================================
 
 export interface CancelBookingParams {
   bookingId: string;
@@ -508,28 +425,6 @@ export async function cancelBooking(
     throw new BookingServiceError("Listing not found.", 404, "listing_not_found");
   }
 
-  // -------------------------------------------------------------------
-  // SIMPLIFIED REFUND MODEL — THIS NEEDS REAL LEGAL REVIEW BEFORE LAUNCH.
-  // The client's own spec calls this out explicitly. These three flat
-  // hours-until-check-in rules are a placeholder for a real cancellation
-  // engine that would need to account for local consumer-protection law,
-  // extenuating-circumstances/force-majeure exceptions, partial-stay
-  // proration for cancellations after check-in, currency/tax handling,
-  // etc. Do NOT treat this as launch-ready without counsel sign-off.
-  //   - flexible: full refund if cancelled >= 24h before check-in, else none.
-  //   - moderate: full refund if cancelled >= 5 days before check-in, else none.
-  //   - strict:   50% refund if cancelled >= 14 days before check-in, else none.
-  //
-  // EXCEPTION (matches the publicly-posted /cancellation-policy page, which
-  // promises: "If a Host cancels a confirmed booking, the Guest receives a
-  // full refund regardless of the Listing's stated policy.") — a booking
-  // that was already `confirmed` and is being cancelled by its host (not the
-  // guest, not an admin acting on the guest's behalf) always gets a 100%
-  // guest refund, no matter which policy the listing has. Without this
-  // check, a host cancelling close to check-in under a strict/moderate
-  // policy would silently shortchange the guest and break the site's own
-  // published promise.
-  // -------------------------------------------------------------------
   const isHostInitiatedCancellationOfConfirmedBooking =
     booking.status === "confirmed" && params.cancelledBy === booking.host_id;
 
@@ -557,10 +452,6 @@ export async function cancelBooking(
 
   const guestRefundCents = Math.round(booking.total_cents * (refundPercent / 100));
   const nonRefundedCents = booking.total_cents - guestRefundCents;
-  // Whatever isn't refunded to the guest is split between the host payout
-  // and the retained platform fee using the same ratio as the original
-  // quote, so a partial refund doesn't hand the host either a windfall or
-  // nothing relative to what they were originally promised.
   const hostShareRatio =
     booking.total_cents > 0 ? booking.host_payout_cents / booking.total_cents : 0;
   const hostPayoutCents = Math.round(nonRefundedCents * hostShareRatio);
@@ -593,10 +484,6 @@ export async function cancelBooking(
     .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
     .eq("id", booking.id);
 
-  // Free the dates back up for other guests. Best-effort: availability rows
-  // are a UX/inventory concern, not the source of truth for double-booking
-  // (that's the exclusion constraint), so we don't fail the cancellation if
-  // this update has a problem — just log it.
   const { error: availabilityError } = await admin
     .from("availability")
     .update({ status: "available", booking_id: null })
