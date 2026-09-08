@@ -50,7 +50,9 @@ export async function POST(request: NextRequest) {
 
     if (insertError || !inserted) {
       console.error("Failed to record payment_event", insertError);
-      return NextResponse.json({ received: true });
+      // Do not acknowledge a webhook we could not persist. Returning 5xx makes
+      // Stripe retry instead of silently losing a payment-state transition.
+      return NextResponse.json({ error: "event_persistence_failed" }, { status: 500 });
     }
     eventRowId = inserted.id;
   }
@@ -67,6 +69,11 @@ export async function POST(request: NextRequest) {
       .from("payment_events")
       .update({ processing_status: "failed", processed_at: new Date().toISOString() })
       .eq("id", eventRowId);
+
+    // Stripe retries deliveries that receive a 5xx. This is essential for
+    // transient database failures and partial processing (for example, a
+    // confirmed booking whose availability rows still need to be locked).
+    return NextResponse.json({ error: "event_processing_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
@@ -92,10 +99,10 @@ async function findBookingIdByPaymentIntent(
 }
 
 /**
- * Confirm exactly one booking. The previous shared helper only filtered by
- * status and could update every pending-payment booking before `.single()`
- * detected multiple rows. A Stripe webhook must always scope the mutation to
- * the booking id carried by the verified PaymentIntent metadata.
+ * Confirm exactly one booking and make retries safe. A webhook can be
+ * delivered more than once, and a first attempt can confirm the booking but
+ * fail later while updating availability. In that case a retry must be able
+ * to resume instead of treating the already-confirmed booking as a conflict.
  */
 async function confirmExactBooking(
   admin: SupabaseClient<Database>,
@@ -115,15 +122,31 @@ async function confirmExactBooking(
     .eq("id", bookingId)
     .eq("status", "pending_payment")
     .select()
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
-    throw new Error(
-      `Could not confirm booking ${bookingId} after successful payment; hold may have expired or booking was cancelled. Manual reconciliation required.`
-    );
+  if (!error && data) {
+    return data;
   }
 
-  return data;
+  const { data: existing, error: existingError } = await admin
+    .from("bookings")
+    .select("*")
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (
+    !existingError &&
+    existing &&
+    existing.status === "confirmed" &&
+    existing.payment_status === "paid" &&
+    existing.stripe_payment_intent_id === stripePaymentIntentId
+  ) {
+    return existing;
+  }
+
+  throw new Error(
+    `Could not confirm booking ${bookingId} after successful payment; hold may have expired or booking was cancelled. Manual reconciliation required.`
+  );
 }
 
 async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>): Promise<void> {
@@ -147,9 +170,8 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
         .gte("date", booking.check_in)
         .lt("date", booking.check_out);
       if (availabilityError) {
-        console.error(
-          `Failed to flip availability rows to 'booked' for booking ${booking.id}`,
-          availabilityError
+        throw new Error(
+          `Failed to flip availability rows to booked for booking ${booking.id}: ${availabilityError.message}`
         );
       }
       break;
@@ -217,7 +239,7 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
         })
         .eq("stripe_account_id", account.id);
       if (error) {
-        console.error(`Failed to sync host_profiles for Stripe account ${account.id}`, error);
+        throw new Error(`Failed to sync host profile for Stripe account ${account.id}: ${error.message}`);
       }
       break;
     }
