@@ -4,37 +4,8 @@ import type Stripe from "stripe";
 
 import { verifyWebhookSignature } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { confirmBooking } from "@/services/booking.service";
-import type { Database, Json } from "@/types/database";
+import type { Database, Json, Tables } from "@/types/database";
 
-/**
- * POST /api/stripe/webhook
- *
- * CRITICAL PATH — this is the only place a payment ever actually confirms a
- * booking. Two hard requirements:
- *
- *   1. Signature verification: we read the RAW body via `request.text()`
- *      (never `request.json()` — Stripe's signature check needs the exact
- *      bytes Stripe signed) and verify it with `verifyWebhookSignature()`
- *      before trusting anything in the payload.
- *   2. Idempotency: Stripe can and will redeliver the same event. We check
- *      `payment_events` (keyed by the unique `stripe_event_id`) BEFORE
- *      acting, insert a `pending` row first, only then handle the event,
- *      then flip that row to `processed`/`failed`. A redelivery of an
- *      already-`processed` event returns 200 immediately without doing
- *      anything twice (e.g. without double-confirming a booking or
- *      double-inserting a dispute row).
- *
- * We always return 200 once the event has been durably recorded in
- * `payment_events` — including for event types we don't fully act on —
- * so Stripe doesn't retry forever. Genuine handler failures are recorded
- * with `processing_status: 'failed'` for admin follow-up rather than
- * silently swallowed.
- *
- * We never trust the payload for anything other than "which booking/account
- * to look up" — amounts, statuses etc. are always re-derived from our own
- * DB (e.g. confirmBooking() does not re-set total_cents from the webhook).
- */
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
@@ -53,7 +24,6 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = createAdminClient();
-
   const { data: existingEvent } = await admin
     .from("payment_events")
     .select("id, processing_status")
@@ -61,7 +31,6 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (existingEvent?.processing_status === "processed") {
-    // Already handled a previous delivery of this exact event — idempotent no-op.
     return NextResponse.json({ received: true, idempotent: true });
   }
 
@@ -80,9 +49,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError || !inserted) {
-      // Most likely a race with a concurrent delivery of the same event
-      // hitting the unique `stripe_event_id` constraint — safe to ack and
-      // let whichever request won the race handle it.
       console.error("Failed to record payment_event", insertError);
       return NextResponse.json({ received: true });
     }
@@ -101,10 +67,6 @@ export async function POST(request: NextRequest) {
       .from("payment_events")
       .update({ processing_status: "failed", processed_at: new Date().toISOString() })
       .eq("id", eventRowId);
-    // Still 200: we've durably recorded the event, and retrying won't help
-    // if the failure was e.g. a genuine state conflict — it just needs a
-    // human. `payment_events.processing_status = 'failed'` rows should be
-    // monitored by an admin/ops process.
   }
 
   return NextResponse.json({ received: true });
@@ -129,6 +91,41 @@ async function findBookingIdByPaymentIntent(
   return data?.id ?? null;
 }
 
+/**
+ * Confirm exactly one booking. The previous shared helper only filtered by
+ * status and could update every pending-payment booking before `.single()`
+ * detected multiple rows. A Stripe webhook must always scope the mutation to
+ * the booking id carried by the verified PaymentIntent metadata.
+ */
+async function confirmExactBooking(
+  admin: SupabaseClient<Database>,
+  bookingId: string,
+  stripePaymentIntentId: string,
+  stripeChargeId?: string | null
+): Promise<Tables<"bookings">> {
+  const { data, error } = await admin
+    .from("bookings")
+    .update({
+      status: "confirmed",
+      payment_status: "paid",
+      confirmed_at: new Date().toISOString(),
+      stripe_payment_intent_id: stripePaymentIntentId,
+      stripe_charge_id: stripeChargeId ?? null,
+    })
+    .eq("id", bookingId)
+    .eq("status", "pending_payment")
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      `Could not confirm booking ${bookingId} after successful payment; hold may have expired or booking was cancelled. Manual reconciliation required.`
+    );
+  }
+
+  return data;
+}
+
 async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>): Promise<void> {
   switch (event.type) {
     case "payment_intent.succeeded": {
@@ -141,7 +138,7 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
       const chargeId =
         typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id ?? null;
 
-      const booking = await confirmBooking(bookingId, pi.id, chargeId);
+      const booking = await confirmExactBooking(admin, bookingId, pi.id, chargeId);
 
       const { error: availabilityError } = await admin
         .from("availability")
@@ -164,11 +161,6 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
       if (!bookingId) break;
 
       await admin.from("bookings").update({ payment_status: "failed" }).eq("id", bookingId);
-      // Deliberately do NOT touch `status` here — it stays 'pending_payment'
-      // so the guest can retry within their hold window, or
-      // expireStaleHolds() frees the dates naturally once hold_expires_at
-      // passes. Freeing the dates immediately on a failed charge would let
-      // someone else grab them while this guest might still retry.
       break;
     }
 
@@ -184,9 +176,7 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
       const fullyRefunded = charge.amount_refunded >= charge.amount;
       await admin
         .from("bookings")
-        .update({
-          payment_status: fullyRefunded ? "refunded" : "partially_refunded",
-        })
+        .update({ payment_status: fullyRefunded ? "refunded" : "partially_refunded" })
         .eq("id", bookingId);
       break;
     }
@@ -207,8 +197,6 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
 
       await admin.from("disputes").insert({
         booking_id: bookingId,
-        // Disputes are filed by the cardholder with their bank, not through
-        // our app — attribute to the guest, the closest match to "opened_by".
         opened_by: bookingRow.guest_id,
         reason: dispute.reason ?? "unrecognized",
         description: `Stripe dispute ${dispute.id}${dispute.reason ? `: ${dispute.reason}` : ""}`,
@@ -235,15 +223,10 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
     }
 
     case "payout.paid":
-    case "payout.failed": {
-      // No dedicated payouts table in the current schema — the raw event is
-      // already durably recorded in payment_events above for admin
-      // visibility/reconciliation. Nothing further to do here today.
+    case "payout.failed":
       break;
-    }
 
     default:
-      // Unhandled event type — still acknowledged + durably recorded above.
       break;
   }
 }
