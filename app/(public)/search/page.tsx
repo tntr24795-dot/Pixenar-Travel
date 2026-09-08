@@ -117,7 +117,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[1680px] px-5 py-5 sm:px-7 lg:px-8 xl:px-10">
+      <div className="mx-auto w-full max-w-[1760px] px-5 py-5 sm:px-7 lg:px-9 xl:px-12">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="font-display text-xl font-semibold text-foreground">
@@ -168,7 +168,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         </div>
 
-        <div className="lg:grid lg:grid-cols-2 lg:gap-6 xl:gap-8">
+        <div className="lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.08fr)] lg:gap-7 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.1fr)] xl:gap-9">
           <section className="min-w-0 pb-10">
             {result.listings.length === 0 ? (
               <div className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-sm">
@@ -233,7 +233,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </section>
 
           <aside className="hidden lg:block">
-            <div className="sticky top-[9.6rem] h-[calc(100vh-11rem)] min-h-[600px] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
+            <div className="sticky top-[9.4rem] h-[calc(100vh-10.6rem)] min-h-[640px] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
               <ListingsMap
                 pins={pins}
                 centerLat={selectedDestination?.latitude}
