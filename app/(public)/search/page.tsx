@@ -112,12 +112,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-[4.5rem] z-30 border-b border-border/80 bg-background/95 shadow-sm backdrop-blur-xl">
-        <div className="mx-auto max-w-[1800px] px-4 py-4 sm:px-6 lg:px-8">
+        <div className="px-4 py-4 sm:px-6 lg:px-8">
           <SearchBar />
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6 lg:px-8">
+      <div className="px-4 py-5 sm:px-6 lg:px-8">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="font-display text-xl font-semibold text-foreground">
@@ -168,8 +168,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         </div>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(520px,0.95fr)] lg:gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(620px,0.95fr)]">
-          <section className="min-w-0 pb-10">
+        <div className="lg:grid lg:grid-cols-[minmax(390px,0.72fr)_minmax(0,1.28fr)] lg:gap-4 xl:grid-cols-[minmax(500px,0.78fr)_minmax(0,1.42fr)] xl:gap-5 2xl:grid-cols-[minmax(560px,0.82fr)_minmax(0,1.58fr)]">
+          <section className="min-w-0 pb-10 lg:pr-1">
             {result.listings.length === 0 ? (
               <div className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-sm">
                 <span className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-secondary text-primary">
@@ -189,7 +189,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 gap-x-4 gap-y-7 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-x-4 gap-y-7 sm:grid-cols-2">
                   {result.listings.map((listing) => (
                     <ListingCard
                       key={listing.id}
@@ -232,14 +232,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
           </section>
 
-          <aside className="hidden lg:block">
-            <div className="sticky top-[10.5rem] h-[calc(100vh-12rem)] min-h-[560px] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
+          <aside className="hidden lg:block lg:-mr-8">
+            <div className="sticky top-[9.2rem] h-[calc(100vh-10.2rem)] min-h-[620px] overflow-hidden border border-border bg-muted shadow-sm lg:rounded-l-3xl lg:rounded-r-none">
               <ListingsMap
                 pins={pins}
                 centerLat={selectedDestination?.latitude}
                 centerLng={selectedDestination?.longitude}
                 zoom={selectedDestination ? 10 : 11}
-                className="h-full w-full rounded-3xl border-0"
+                className="h-full w-full rounded-none border-0"
               />
             </div>
           </aside>
