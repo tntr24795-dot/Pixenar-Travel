@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { createHoldSchema } from "@/lib/validation/schemas";
+import { consumeRateLimit, rateLimitHeaders } from "@/lib/security/rate-limit";
 import { BookingServiceError, createBookingHold } from "@/services/booking.service";
 
 /**
@@ -18,6 +19,19 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const rate = await consumeRateLimit(`booking-hold:${user.id}`, 60, 8);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "rate_limited" },
+        { status: 429, headers: rateLimitHeaders(rate) }
+      );
+    }
+  } catch (err) {
+    console.error("booking hold rate limit failed", err);
+    return NextResponse.json({ error: "temporarily_unavailable" }, { status: 503 });
   }
 
   const json = await request.json().catch(() => null);
@@ -40,8 +54,6 @@ export async function POST(request: NextRequest) {
       infants: parsed.data.infants,
       pets: parsed.data.pets,
     });
-    // Returned so the client can start its countdown and render the price
-    // breakdown immediately (booking.id + hold_expires_at + priceItems).
     return NextResponse.json({ booking, priceItems }, { status: 201 });
   } catch (err) {
     if (err instanceof BookingServiceError) {
