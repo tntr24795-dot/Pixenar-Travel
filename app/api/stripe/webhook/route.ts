@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 
-import { verifyWebhookSignature } from "@/lib/stripe/server";
+import { getStripe, verifyWebhookSignature } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database, Json, Tables } from "@/types/database";
 
@@ -50,8 +50,6 @@ export async function POST(request: NextRequest) {
 
     if (insertError || !inserted) {
       console.error("Failed to record payment_event", insertError);
-      // Do not acknowledge a webhook we could not persist. Returning 5xx makes
-      // Stripe retry instead of silently losing a payment-state transition.
       return NextResponse.json({ error: "event_persistence_failed" }, { status: 500 });
     }
     eventRowId = inserted.id;
@@ -70,9 +68,6 @@ export async function POST(request: NextRequest) {
       .update({ processing_status: "failed", processed_at: new Date().toISOString() })
       .eq("id", eventRowId);
 
-    // Stripe retries deliveries that receive a 5xx. This is essential for
-    // transient database failures and partial processing (for example, a
-    // confirmed booking whose availability rows still need to be locked).
     return NextResponse.json({ error: "event_processing_failed" }, { status: 500 });
   }
 
@@ -96,6 +91,38 @@ async function findBookingIdByPaymentIntent(
     .eq("stripe_payment_intent_id", piId)
     .maybeSingle();
   return data?.id ?? null;
+}
+
+async function refundLatePayment(
+  admin: SupabaseClient<Database>,
+  booking: Tables<"bookings">,
+  paymentIntentId: string
+): Promise<void> {
+  if (booking.stripe_payment_intent_id !== paymentIntentId) {
+    throw new Error(
+      `PaymentIntent ${paymentIntentId} does not match booking ${booking.id}; refusing automatic refund.`
+    );
+  }
+
+  const stripe = getStripe();
+  await stripe.refunds.create(
+    { payment_intent: paymentIntentId },
+    { idempotencyKey: `late-payment-refund:${booking.id}:${paymentIntentId}` }
+  );
+
+  const { error } = await admin
+    .from("bookings")
+    .update({
+      status: "refunded",
+      payment_status: "refunded",
+      cancelled_at: booking.cancelled_at ?? new Date().toISOString(),
+    })
+    .eq("id", booking.id)
+    .eq("stripe_payment_intent_id", paymentIntentId);
+
+  if (error) {
+    throw new Error(`Late-payment refund succeeded but booking update failed: ${error.message}`);
+  }
 }
 
 /**
@@ -145,7 +172,7 @@ async function confirmExactBooking(
   }
 
   throw new Error(
-    `Could not confirm booking ${bookingId} after successful payment; hold may have expired or booking was cancelled. Manual reconciliation required.`
+    `Could not confirm booking ${bookingId} after successful payment; booking is no longer pending payment.`
   );
 }
 
@@ -158,9 +185,26 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
         console.warn("payment_intent.succeeded with no booking_id metadata", pi.id);
         break;
       }
+
+      const { data: existingBooking, error: bookingLookupError } = await admin
+        .from("bookings")
+        .select("*")
+        .eq("id", bookingId)
+        .maybeSingle();
+      if (bookingLookupError || !existingBooking) {
+        throw new Error(`Successful PaymentIntent ${pi.id} references missing booking ${bookingId}.`);
+      }
+
+      // A client can still finish Stripe confirmation milliseconds after the
+      // 15-minute hold expires. Never leave that guest charged without a stay:
+      // expired/cancelled bookings are refunded immediately and idempotently.
+      if (existingBooking.status === "expired" || existingBooking.status === "cancelled") {
+        await refundLatePayment(admin, existingBooking, pi.id);
+        break;
+      }
+
       const chargeId =
         typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id ?? null;
-
       const booking = await confirmExactBooking(admin, bookingId, pi.id, chargeId);
 
       const { error: availabilityError } = await admin
@@ -182,7 +226,12 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
       const bookingId = pi.metadata?.booking_id;
       if (!bookingId) break;
 
-      await admin.from("bookings").update({ payment_status: "failed" }).eq("id", bookingId);
+      const { error } = await admin
+        .from("bookings")
+        .update({ payment_status: "failed" })
+        .eq("id", bookingId)
+        .eq("stripe_payment_intent_id", pi.id);
+      if (error) throw new Error(`Failed to mark payment failed for ${bookingId}: ${error.message}`);
       break;
     }
 
@@ -196,10 +245,11 @@ async function handleEvent(event: Stripe.Event, admin: SupabaseClient<Database>)
         break;
       }
       const fullyRefunded = charge.amount_refunded >= charge.amount;
-      await admin
+      const { error } = await admin
         .from("bookings")
         .update({ payment_status: fullyRefunded ? "refunded" : "partially_refunded" })
         .eq("id", bookingId);
+      if (error) throw new Error(`Failed to sync refund for booking ${bookingId}: ${error.message}`);
       break;
     }
 
