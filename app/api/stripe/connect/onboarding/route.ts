@@ -2,28 +2,21 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
-import { createConnectOnboardingLink } from "@/lib/stripe/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  createConnectOnboardingLink,
+  getConnectAccountStatus,
+} from "@/lib/stripe/server";
 import type { Database } from "@/types/database";
 
 /**
  * POST /api/stripe/connect/onboarding
  *
- * Gets-or-creates the caller's host_profiles row, then returns a Stripe
- * Connect Express onboarding link for them to complete.
- *
- * Uses the session-bound client for both the insert and the update: the
- * `host_profiles_insert_own` / `host_profiles_update_own_or_admin` RLS
- * policies already allow a user to write their own row, so there's no need
- * to reach for the admin client here.
+ * Gets-or-creates the caller's host_profiles row, reconciles an existing
+ * connected account from Stripe, and otherwise returns a Stripe Connect
+ * Express onboarding link.
  */
 export async function POST(request: NextRequest) {
-  // Cast: the installed @supabase/ssr version's `createServerClient()` return
-  // type doesn't line up 1:1 with the newer @supabase/supabase-js
-  // `SupabaseClient` generic signature in this environment (a pre-existing,
-  // repo-wide dependency version mismatch — see lib/supabase/server.ts),
-  // which otherwise collapses every `.from(...)` row type to `never`. This
-  // is a type-only workaround; the runtime client (and the RLS it enforces)
-  // is unaffected.
   const supabase = createClient() as unknown as SupabaseClient<Database>;
   const {
     data: { user },
@@ -50,6 +43,44 @@ export async function POST(request: NextRequest) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+  const admin = createAdminClient();
+
+  // The existing sandbox account may already be fully onboarded. In that
+  // case, reconcile the local cache and send the host straight to the
+  // dashboard instead of asking Stripe for a second onboarding flow.
+  if (hostProfile.stripe_account_id) {
+    try {
+      const status = await getConnectAccountStatus(hostProfile.stripe_account_id);
+      const { error: syncError } = await admin
+        .from("host_profiles")
+        .update({
+          stripe_onboarding_complete: status.stripeOnboardingComplete,
+          charges_enabled: status.chargesEnabled,
+          payouts_enabled: status.payoutsEnabled,
+        })
+        .eq("id", hostProfile.id)
+        .eq("user_id", user.id);
+
+      if (syncError) {
+        console.error("Failed to sync existing Stripe Connect account", syncError);
+        return NextResponse.json({ error: "stripe_status_sync_failed" }, { status: 502 });
+      }
+
+      if (
+        status.stripeOnboardingComplete &&
+        status.chargesEnabled &&
+        status.payoutsEnabled
+      ) {
+        return NextResponse.json({
+          url: `${appUrl}/host/dashboard`,
+          alreadyComplete: true,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to retrieve existing Stripe Connect account", err);
+      return NextResponse.json({ error: "stripe_account_unavailable" }, { status: 502 });
+    }
+  }
 
   try {
     const { accountId, url } = await createConnectOnboardingLink({
@@ -60,10 +91,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (hostProfile.stripe_account_id !== accountId) {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await admin
         .from("host_profiles")
         .update({ stripe_account_id: accountId })
-        .eq("id", hostProfile.id);
+        .eq("id", hostProfile.id)
+        .eq("user_id", user.id);
       if (updateError) {
         console.error("Failed to store stripe_account_id on host_profiles", updateError);
       }
