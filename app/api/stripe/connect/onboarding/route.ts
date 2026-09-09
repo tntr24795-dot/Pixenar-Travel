@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
     hostProfile = inserted;
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+  // Always keep Stripe redirects on the same public origin that received the
+  // request. This avoids stale NEXT_PUBLIC_APP_URL values sending hosts to a
+  // deleted preview or unrelated deployment.
+  const appUrl = request.nextUrl.origin;
   const admin = createAdminClient();
 
   // The existing sandbox account may already be fully onboarded. In that
