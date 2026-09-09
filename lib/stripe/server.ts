@@ -25,11 +25,28 @@ export function getStripe(): Stripe {
 }
 
 /**
+ * Reads the authoritative Connect state from Stripe. The result is used by
+ * authenticated server routes to reconcile the local host_profiles cache.
+ */
+export async function getConnectAccountStatus(accountId: string): Promise<{
+  stripeOnboardingComplete: boolean;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+}> {
+  const account = await getStripe().accounts.retrieve(accountId);
+
+  return {
+    stripeOnboardingComplete: Boolean(account.details_submitted),
+    chargesEnabled: Boolean(account.charges_enabled),
+    payoutsEnabled: Boolean(account.payouts_enabled),
+  };
+}
+
+/**
  * Creates (or reuses) a Stripe Connect Express account for a host and
  * returns an onboarding Account Link. Uses "destination charges" — the
  * platform charges the guest's card directly and automatically routes the
- * host's share to their connected account via `transfer_data`, with the
- * remainder (platform fee) retained on the platform's own balance.
+ * host's share to their connected account via transfer_data.
  */
 export async function createConnectOnboardingLink(params: {
   existingAccountId?: string | null;
@@ -64,13 +81,10 @@ export async function createConnectOnboardingLink(params: {
 /**
  * Creates a PaymentIntent for a booking using the "destination charge" model:
  * the full guest total is charged to the platform's Stripe account, and
- * `transfer_data.amount` moves the host's net payout to their connected
- * account automatically once the charge succeeds. The difference (guest
- * service fee + host commission) stays on the platform balance.
+ * transfer_data.amount moves the host's net payout to their connected account.
  *
- * IMPORTANT: `totalCents` and `hostPayoutCents` must come from
- * `calculateBookingQuote()` recomputed from the database — never from a
- * value supplied by the browser.
+ * IMPORTANT: totalCents and hostPayoutCents must come from the server-side
+ * booking quote, never from a value supplied by the browser.
  */
 export async function createBookingPaymentIntent(params: {
   totalCents: number;
