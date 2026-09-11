@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/layout/footer";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { PROPERTY_TYPES } from "@/constants";
@@ -158,16 +159,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="cta" className="relative overflow-hidden bg-havena-teal bg-cover bg-center py-24 text-white" style={{ backgroundImage: `url(${BEDROOM_IMAGE_URL})` }}>
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,184,90,.35),transparent_42%),linear-gradient(135deg,rgba(11,14,20,.10),rgba(11,14,20,.45))]" />
-        <div className="container relative z-10">
-          <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-display text-3xl font-semibold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.8)] sm:text-4xl">Have a place worth sharing?</h2>
-            <p className="font-medium leading-relaxed text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">List your property on Pixenar Travel and reach travelers looking for something better than a hotel room. Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.</p>
-            <Button asChild size="lg" variant="secondary"><Link href="/become-a-host">Become a host</Link></Button>
-          </ScrollFadeIn>
-        </div>
-      </section>
+      <div className="relative overflow-hidden bg-havena-teal bg-cover bg-center text-white" style={{ backgroundImage: `url(${BEDROOM_IMAGE_URL})` }}>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,184,90,.28),transparent_42%),linear-gradient(135deg,rgba(11,14,20,.18),rgba(11,14,20,.52))]" />
+        <section id="cta" className="relative py-24">
+          <div className="container relative z-10">
+            <ScrollFadeIn className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
+              <h2 className="font-display text-3xl font-semibold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.8)] sm:text-4xl">Have a place worth sharing?</h2>
+              <p className="font-medium leading-relaxed text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">List your property on Pixenar Travel and reach travelers looking for something better than a hotel room. Setting up takes minutes -- pricing, calendar, and payouts are all handled for you.</p>
+              <Button asChild size="lg" variant="secondary"><Link href="/become-a-host">Become a host</Link></Button>
+            </ScrollFadeIn>
+          </div>
+        </section>
+        <Footer embedded />
+      </div>
     </>
   );
 }
