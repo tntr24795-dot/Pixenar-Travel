@@ -15,7 +15,9 @@ const HERO_IMAGES = [
     cropClassName: "object-center md:object-[center_68%]",
   },
   {
-    src: "/images/home-bedroom.webp",
+    // Pin the bedroom to the last known-good repository revision so a broken
+    // replacement at the mutable local path cannot silently damage the hero.
+    src: "https://raw.githubusercontent.com/tntr24795-dot/Pixenar-Travel/dd5465936a5da8c8ece4bd733ba173791abf3058/public/images/home-bedroom.webp",
     alt: "A refined bedroom overlooking the city",
     cropClassName: "object-center",
   },
