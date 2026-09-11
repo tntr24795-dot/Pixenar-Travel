@@ -6,9 +6,6 @@ import { Facebook, Instagram } from "lucide-react";
 
 import { APP_NAME } from "@/constants";
 
-const BEDROOM_IMAGE_URL =
-  "https://raw.githubusercontent.com/tntr24795-dot/Pixenar-Travel/dd5465936a5da8c8ece4bd733ba173791abf3058/public/images/home-bedroom.webp";
-
 const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
     title: "Explore",
@@ -36,18 +33,22 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
   },
 ];
 
-export function Footer() {
+interface FooterProps {
+  embedded?: boolean;
+}
+
+export function Footer({ embedded = false }: FooterProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+  // On the homepage the footer is rendered inside the CTA's single shared
+  // bedroom-backdrop wrapper. Suppress the global layout copy so the image
+  // is not restarted a second time at the CTA/footer boundary.
+  if (isHome && !embedded) return null;
+
   return (
-    <footer
-      className={`relative overflow-hidden text-white ${isHome ? "bg-cover bg-center bg-fixed" : "bg-[#3F7F86]"}`}
-      style={isHome ? { backgroundImage: `url(${BEDROOM_IMAGE_URL})` } : undefined}
-    >
-      {isHome ? (
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(11,14,20,.45),rgba(11,14,20,.62))]" />
-      ) : (
+    <footer className={`relative overflow-hidden text-white ${embedded ? "bg-transparent" : "bg-[#3F7F86]"}`}>
+      {!embedded && (
         <>
           <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-havena-gold/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
